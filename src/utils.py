@@ -2,6 +2,8 @@ import os
 import subprocess
 import sys
 
+from colorama import Style
+
 
 def remove_prefix(string: str, prefix: str) -> str:
     if string.startswith(prefix):
@@ -36,3 +38,7 @@ def print_progress_bar(
     print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=print_end)
     if iteration == total:
         print()
+
+
+def reset_term_color():
+    print(Style.RESET_ALL, end="")
