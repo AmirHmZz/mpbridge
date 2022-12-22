@@ -1,2 +1,4 @@
 watchdog>=2.2.0
-click>=7.0
+colorama>=0.4.0
+mpremote>=0.4.0
+click
