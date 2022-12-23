@@ -1,0 +1,37 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mpbridge"
+version = "0.1.0"
+description = "File System Bridge to facilitate working with files on Micropython devices"
+license = { file = "LICENSE" }
+keywords = [
+    "micropython",
+    "filemanager",
+    "file-manager",
+    "filesystem",
+    "sync",
+    "synchronize",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "watchdog>=2.2.0",
+    "colorama>=0.4.0",
+    "mpremote>=0.4.0",
+    "click"
+]
+
+[project.scripts]
+mpbridge = "mpbridge.shell:main"
+
+[project.urls]
+homepage = "https://github.com/AmirHmZz/mpbridge"
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
