@@ -1,21 +1,13 @@
 import tempfile
 import time
 
-import click
 from watchdog.observers import Observer
 
-from src.handler import EventHandler
-from src.pyboard import SweetPyboard
-from src.utils import open_dir
+from .handler import EventHandler
+from .pyboard import SweetPyboard
+from .utils import open_dir
 
 
-@click.group()
-def cli():
-    pass
-
-
-@cli.command()
-@click.argument('port')
 def start(port):
     pyb = SweetPyboard(device=port)
     pyb.enter_raw_repl()
@@ -34,7 +26,3 @@ def start(port):
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
-
-
-if __name__ == '__main__':
-    cli()

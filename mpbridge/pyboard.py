@@ -3,9 +3,9 @@ import os
 from colorama import Fore
 from mpremote.pyboard import Pyboard
 
-from src.utils import print_progress_bar, reset_term_color
+from .utils import print_progress_bar, reset_term_color
 
-recursive_ls = """
+RECURSIVE_LS = """
 from os import ilistdir
 from gc import collect
 def iter_dir(dir_path):
@@ -33,13 +33,12 @@ def generate_buffer():
 
 
 class SweetPyboard(Pyboard):
-
     def fs_recursive_listdir(self):
         buf, consumer = generate_buffer()
-        self.exec_(recursive_ls, data_consumer=consumer)
+        self.exec_(RECURSIVE_LS, data_consumer=consumer)
         return eval(f'[{buf.decode("utf-8")}]')
 
-    def fs_verbose_get(self, src, dest, chunk_size=256):
+    def fs_verbose_get(self, src, dest, chunk_size=1024):
         def print_prog(written, total):
             print_progress_bar(
                 iteration=written, total=total, decimals=0,
@@ -49,7 +48,7 @@ class SweetPyboard(Pyboard):
         self.fs_get(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
         reset_term_color()
 
-    def fs_verbose_put(self, src, dest, chunk_size=256):
+    def fs_verbose_put(self, src, dest, chunk_size=1024):
         def print_prog(written, total):
             print_progress_bar(
                 iteration=written, total=total, decimals=0,

@@ -11,8 +11,8 @@ from watchdog.events import (
     FileDeletedEvent,
     DirModifiedEvent)
 
-from src.pyboard import SweetPyboard
-from src.utils import remove_prefix, replace_backslashes
+from .pyboard import SweetPyboard
+from .utils import remove_prefix, replace_backslashes
 
 
 class EventHandler(FileSystemEventHandler):
