@@ -1,8 +1,8 @@
 # 📂 MPBridge
-A file system bridge to synchronise and manage files on a MicroPython running device
+A file system bridge to synchronise and manage files on a [MicroPython](https://github.com/micropython/micropython) running device
 
 ## How it works
-This tool doesn't propose any graphical user interface and uses platform's file system to make it easier to manage files on remote device.
+This tool doesn't provide any graphical user interface and uses platform's file system instead to make it easier to manage files on remote device. After starting the bridge, all files will be copied from MicroPython device into a temporary directory in your local mechine and all modifications will be applied to remote device too, so you would be able to use any tool or file manager to manage or modify files.
 
 ## Supported platforms
 - Windows
