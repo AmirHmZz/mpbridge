@@ -12,7 +12,7 @@ def start(port):
     pyb = SweetPyboard(device=port)
     pyb.enter_raw_repl()
 
-    with tempfile.TemporaryDirectory() as tmp_dir_path:
+    with tempfile.TemporaryDirectory(prefix="mpbridge-") as tmp_dir_path:
         pyb.copy_all(dest_dir_path=tmp_dir_path)
         observer = Observer()
         observer.schedule(
