@@ -11,13 +11,15 @@ from gc import collect
 def iter_dir(dir_path):
     collect()
     for item in ilistdir(dir_path):
-        idir = f"{dir_path}/{item[0]}"
+        if dir_path[-1] != "/":
+            dir_path += "/"
+        idir = f"{dir_path}{item[0]}"
         if item[1] == 0x8000:
             yield idir, True
         else:
             yield from iter_dir(idir)
             yield idir, False
-for item in iter_dir(""):
+for item in iter_dir("/"):
     print(item, end=",")
 """
 
