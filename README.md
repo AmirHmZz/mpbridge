@@ -27,3 +27,7 @@ This tool doesn't provide any graphical user interface and uses platform's file 
 ## How to use
 1. Connect your MicroPython device
 2. Run `mpbridge start <PORT>`
+* **Note** : `<PORT>` can be the **full port path** or one of the **short forms** below :
+  * `c[n]` for `COM[n]` (`c3` is equal to `COM3`)
+  * `u[n]` for `/dev/ttyUSB[n]` (`u3` is equal to `/dev/ttyUSB3`)
+  * `a[n]` for `/dev/ttyACM[n]` (`a3` is equal to `/dev/ttyACM3`)

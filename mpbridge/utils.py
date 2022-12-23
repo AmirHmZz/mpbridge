@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import sys
 
@@ -42,3 +43,14 @@ def print_progress_bar(
 
 def reset_term_color():
     print(Style.RESET_ALL, end="")
+
+
+def port_abbreviation(port: str):
+    if re.fullmatch(r"^[auc]\d{1,2}$", port):
+        if port[0] == "c":
+            port = "COM" + port[1:]
+        elif port[0] == "a":
+            port = "/dev/ttyACM" + port[1:]
+        elif port[0] == "u":
+            port = "/dev/ttyUSB" + port[1:]
+    return port
