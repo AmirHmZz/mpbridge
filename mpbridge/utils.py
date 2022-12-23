@@ -8,7 +8,7 @@ from colorama import Style
 def remove_prefix(string: str, prefix: str) -> str:
     if string.startswith(prefix):
         return string[len(prefix):]
-    return prefix
+    return string
 
 
 def replace_backslashes(path: str) -> str:
