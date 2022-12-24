@@ -1,11 +1,12 @@
 import tempfile
 import time
 
+from colorama import Fore
 from watchdog.observers import Observer
 
 from .handler import EventHandler
 from .pyboard import SweetPyboard
-from .utils import open_dir, port_abbreviation, remove_prefix
+from .utils import open_dir, port_abbreviation, remove_prefix, reset_term_color
 
 
 def _get_temp_dir_name(full_port: str):
@@ -17,11 +18,15 @@ def _get_temp_dir_name(full_port: str):
 
 def start(port):
     port = port_abbreviation(port)
+    print(Fore.YELLOW, "- Starting filesystem bridge on", port)
+    reset_term_color()
     pyb = SweetPyboard(device=port)
-    pyb.enter_raw_repl()
+    pyb.enter_raw_repl_verbose()
 
     with tempfile.TemporaryDirectory(prefix=_get_temp_dir_name(port)) as tmp_dir_path:
         pyb.copy_all(dest_dir_path=tmp_dir_path)
+        print(Fore.YELLOW, "- Started filesystem bridge. Use Ctrl-C to terminate")
+        reset_term_color()
         observer = Observer()
         observer.schedule(
             EventHandler(pyb=pyb, base_path=tmp_dir_path),
@@ -33,5 +38,5 @@ def start(port):
                 time.sleep(1)
         except KeyboardInterrupt:
             observer.stop()
-            pyb.exit_raw_repl()
+            pyb.exit_raw_repl_verbose()
         observer.join()

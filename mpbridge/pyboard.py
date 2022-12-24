@@ -90,3 +90,13 @@ class SweetPyboard(Pyboard):
             self.fs_verbose_get(item[0], dest_dir_path + item[0], chunk_size=256)
         print(Fore.LIGHTGREEN_EX, "✓ Copied all files successfully")
         reset_term_color()
+
+    def enter_raw_repl_verbose(self, soft_reset=True):
+        print(Fore.YELLOW, "- Entering raw repl")
+        reset_term_color()
+        return self.enter_raw_repl(soft_reset)
+
+    def exit_raw_repl_verbose(self):
+        print(Fore.YELLOW, "- Exiting raw repl")
+        reset_term_color()
+        self.exit_raw_repl()
