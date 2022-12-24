@@ -33,4 +33,5 @@ def start(port):
                 time.sleep(1)
         except KeyboardInterrupt:
             observer.stop()
+            pyb.exit_raw_repl()
         observer.join()
