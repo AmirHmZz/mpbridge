@@ -25,7 +25,8 @@ def start(port):
 
     with tempfile.TemporaryDirectory(prefix=_get_temp_dir_name(port)) as tmp_dir_path:
         pyb.copy_all(dest_dir_path=tmp_dir_path)
-        print(Fore.YELLOW, "- Started filesystem bridge. Use Ctrl-C to terminate")
+        print(Fore.YELLOW, "- Started filesystem bridge in", tmp_dir_path)
+        print(Fore.YELLOW, "- Use Ctrl-C to terminate the bridge")
         reset_term_color()
         observer = Observer()
         observer.schedule(
