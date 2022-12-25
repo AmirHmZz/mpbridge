@@ -41,8 +41,8 @@ def print_progress_bar(
         print()
 
 
-def reset_term_color():
-    print(Style.RESET_ALL, end="")
+def reset_term_color(new_line: bool = False):
+    print(Style.RESET_ALL, end="\n" if new_line else "")
 
 
 def port_abbreviation(port: str):
