@@ -48,7 +48,8 @@ class SweetPyboard(Pyboard):
                 suffix="Complete", length=20)
 
         self.fs_get(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
-        reset_term_color()
+        print_prog(1, 1)
+        reset_term_color(new_line=True)
 
     def fs_verbose_put(self, src, dest, chunk_size=1024):
         def print_prog(written, total):
@@ -58,7 +59,8 @@ class SweetPyboard(Pyboard):
                 suffix="Complete", length=20)
 
         self.fs_put(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
-        reset_term_color()
+        print_prog(1, 1)
+        reset_term_color(new_line=True)
 
     def fs_verbose_rename(self, src, dest):
         buf, consumer = generate_buffer()
