@@ -37,8 +37,6 @@ def print_progress_bar(
     filled_length = int(length * iteration // total)
     bar = fill * filled_length + '-' * (length - filled_length)
     print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=print_end)
-    if iteration == total:
-        print()
 
 
 def reset_term_color(new_line: bool = False):
