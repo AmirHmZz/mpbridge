@@ -23,6 +23,17 @@ for item in iter_dir("/"):
     print(item, end=",")
 """
 
+GET_SHA1 = """
+from hashlib import sha1
+h = sha1()
+b = bytearray(255)
+mv = memoryview(b)
+with open("{}","rb") as f:
+    while s := f.readinto(b):
+        h.update(mv[:s])
+print(h.digest())
+"""
+
 
 def generate_buffer():
     buf = bytearray()
@@ -109,3 +120,8 @@ class SweetPyboard(Pyboard):
         print(Fore.YELLOW, "- Exiting raw repl")
         utils.reset_term_color()
         self.exit_raw_repl()
+
+    def get_sha1(self, file_path):
+        buf, consumer = generate_buffer()
+        self.exec_(GET_SHA1.format(file_path), data_consumer=consumer)
+        return eval(buf.decode("utf-8"))

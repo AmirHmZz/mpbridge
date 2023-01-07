@@ -1,3 +1,4 @@
+import hashlib
 import os
 import re
 import subprocess
@@ -65,3 +66,8 @@ def recursive_list_dir(path: str) -> tuple[dict[str, str], dict[str, str]]:
         for file_name in files:
             out_files[f"{rel_dir}/{file_name}"] = f"{abs_dir}/{file_name}"
     return out_dirs, out_files
+
+
+def get_file_sha1(path: str) -> bytes:
+    with open(path, "rb") as file:
+        return hashlib.sha1(file.read()).digest()
