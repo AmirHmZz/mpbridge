@@ -11,10 +11,12 @@ def main():
     pass
 
 
-@main.command()
+@main.command("bridge", short_help='Starts bridge mode')
 @click.argument('port')
-def start(port):
-    """PORT can be full path or :
+def bridge_mode(port):
+    """Starts bridge mode on <PORT>
+
+    <PORT> can be full path or :
 
             a[n]  connect to serial port "/dev/ttyACM[n]"
 
@@ -23,4 +25,4 @@ def start(port):
             c[n]  connect to serial port "COM[n]"
     """
 
-    bridge.start(port)
+    bridge.start_bridge_mode(port)

@@ -16,16 +16,16 @@ def _get_temp_dir_name(full_port: str):
         "/", "-") + "-"
 
 
-def start(port):
+def start_bridge_mode(port):
     port = port_abbreviation(port)
-    print(Fore.YELLOW, "- Starting filesystem bridge on", port)
+    print(Fore.YELLOW, "- Starting bridge mode on", port)
     reset_term_color()
     pyb = SweetPyboard(device=port)
     pyb.enter_raw_repl_verbose()
 
     with tempfile.TemporaryDirectory(prefix=_get_temp_dir_name(port)) as tmp_dir_path:
         pyb.copy_all(dest_dir_path=tmp_dir_path)
-        print(Fore.YELLOW, "- Started filesystem bridge in", tmp_dir_path)
+        print(Fore.YELLOW, "- Started bridge mode in", tmp_dir_path)
         print(Fore.YELLOW, "- Use Ctrl-C to terminate the bridge")
         reset_term_color()
         observer = Observer()
