@@ -6,34 +6,28 @@ from watchdog.observers import Observer
 
 from .handler import EventHandler
 from .pyboard import SweetPyboard
-from .utils import open_dir, port_abbreviation, remove_prefix, reset_term_color
+from . import utils
 
 
-def _get_temp_dir_name(full_port: str):
-    return "mpbridge-" + remove_prefix(
-        full_port, "/dev/").replace(
-        "tty", "").replace(
-        "/", "-") + "-"
-
-
-def start_bridge_mode(port):
-    port = port_abbreviation(port)
+def start_bridge_mode(port: str):
+    port = utils.port_abbreviation(port)
     print(Fore.YELLOW, "- Starting bridge mode on", port)
-    reset_term_color()
+    utils.reset_term_color()
     pyb = SweetPyboard(device=port)
     pyb.enter_raw_repl_verbose()
 
-    with tempfile.TemporaryDirectory(prefix=_get_temp_dir_name(port)) as tmp_dir_path:
+    with tempfile.TemporaryDirectory(
+            prefix=utils.get_temp_dirname_prefix(port)) as tmp_dir_path:
         pyb.copy_all(dest_dir_path=tmp_dir_path)
         print(Fore.YELLOW, "- Started bridge mode in", tmp_dir_path)
         print(Fore.YELLOW, "- Use Ctrl-C to terminate the bridge")
-        reset_term_color()
+        utils.reset_term_color()
         observer = Observer()
         observer.schedule(
             EventHandler(pyb=pyb, base_path=tmp_dir_path),
             tmp_dir_path, recursive=True)
         observer.start()
-        open_dir(tmp_dir_path)
+        utils.open_dir(tmp_dir_path)
         try:
             while True:
                 time.sleep(1)
@@ -41,3 +35,13 @@ def start_bridge_mode(port):
             observer.stop()
             pyb.exit_raw_repl_verbose()
         observer.join()
+
+
+def sync(port: str, path: str):
+    port = utils.port_abbreviation(port)
+    print(Fore.YELLOW, f"- Syncing files on {port} with {path}")
+    utils.reset_term_color()
+    pyb = SweetPyboard(device=port)
+    pyb.enter_raw_repl_verbose()
+    pyb.sync_with_dir(dir_path=path)
+    pyb.exit_raw_repl_verbose()

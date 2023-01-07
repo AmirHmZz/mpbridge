@@ -32,16 +32,24 @@ running device
 
 ## How to use
 
-You can use `MPBridge` in several ways based on your needs:
+You can use `mpbridge` shell utility in several ways based on your needs:
 
 ### Bridge Mode
 
 * This mode copies all files and folders from your `MicroPython` board into a temporary directory on your local device
-  and
-  listens for any filesystem events on local directory to apply them on your `MicroPython` board.
+  and listens for any filesystem events on local directory to apply them on your board.
 
 1. Connect your `MicroPython` device
 2. Run `mpbridge bridge <PORT>`
+
+### Sync Directory
+
+* This command syncs a specified local directory with a `MicroPython` board. The sync process will push 
+all modified files and folders into board and also pull changes from board and exits.
+* If a conflict occurs, `mpbridge` will choose the **local version** of file automatically and
+overwrites it on connected board.
+1. Connect your `MicroPython` device
+2. Run `mpbridge sync <PORT> <DIR_PATH>`
 
 **Note** : `<PORT>` can be the **full port path** or one of the **short forms** below :
 

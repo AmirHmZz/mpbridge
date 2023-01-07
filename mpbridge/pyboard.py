@@ -111,6 +111,27 @@ class SweetPyboard(Pyboard):
         print(Fore.LIGHTGREEN_EX, "✓ Copied all files successfully")
         utils.reset_term_color()
 
+    def sync_with_dir(self, dir_path):
+        dir_path = utils.replace_backslashes(dir_path)
+        rdirs, rfiles = self.fs_recursive_listdir()
+        ldirs, lfiles = utils.recursive_list_dir(dir_path)
+        for rdir in rdirs.keys():
+            if rdir not in ldirs:
+                os.makedirs(dir_path + rdir, exist_ok=True)
+        for ldir in ldirs.keys():
+            if ldir not in rdirs:
+                self.fs_verbose_mkdir(ldir)
+        for lfile_rel, lfiles_abs in lfiles.items():
+            if rfiles.get(lfile_rel, None) == os.path.getsize(lfiles_abs):
+                if self.get_sha1(lfile_rel) == utils.get_file_sha1(lfiles_abs):
+                    continue
+            self.fs_verbose_put(lfiles_abs, lfile_rel, chunk_size=256)
+        print(Fore.LIGHTGREEN_EX, "✓ Synced files successfully")
+
+        for rfile, rsize in rfiles.items():
+            if rfile not in lfiles:
+                self.fs_verbose_get(rfile, dir_path + rfile, chunk_size=256)
+
     def enter_raw_repl_verbose(self, soft_reset=True):
         print(Fore.YELLOW, "- Entering raw repl")
         utils.reset_term_color()

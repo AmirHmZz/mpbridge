@@ -71,3 +71,10 @@ def recursive_list_dir(path: str) -> tuple[dict[str, str], dict[str, str]]:
 def get_file_sha1(path: str) -> bytes:
     with open(path, "rb") as file:
         return hashlib.sha1(file.read()).digest()
+
+
+def get_temp_dirname_prefix(full_port: str):
+    return "mpbridge-" + remove_prefix(
+        full_port, "/dev/").replace(
+        "tty", "").replace(
+        "/", "-") + "-"
