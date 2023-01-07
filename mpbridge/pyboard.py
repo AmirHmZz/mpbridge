@@ -3,7 +3,7 @@ import os
 from colorama import Fore
 from mpremote.pyboard import Pyboard
 
-from .utils import print_progress_bar, reset_term_color
+from . import utils
 
 RECURSIVE_LS = """
 from os import ilistdir
@@ -42,47 +42,47 @@ class SweetPyboard(Pyboard):
 
     def fs_verbose_get(self, src, dest, chunk_size=1024):
         def print_prog(written, total):
-            print_progress_bar(
+            utils.print_progress_bar(
                 iteration=written, total=total, decimals=0,
                 prefix=f"{Fore.LIGHTCYAN_EX} ↓ Getting {src}\t\t",
                 suffix="Complete", length=20)
 
         self.fs_get(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
         print_prog(1, 1)
-        reset_term_color(new_line=True)
+        utils.reset_term_color(new_line=True)
 
     def fs_verbose_put(self, src, dest, chunk_size=1024):
         def print_prog(written, total):
-            print_progress_bar(
+            utils.print_progress_bar(
                 iteration=written, total=total, decimals=0,
                 prefix=f"{Fore.LIGHTYELLOW_EX} ↑ Putting {dest}\t\t",
                 suffix="Complete", length=20)
 
         self.fs_put(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
         print_prog(1, 1)
-        reset_term_color(new_line=True)
+        utils.reset_term_color(new_line=True)
 
     def fs_verbose_rename(self, src, dest):
         buf, consumer = generate_buffer()
         self.exec_(f'from os import rename; rename("{src}", "{dest}")',
                    data_consumer=consumer)
         print(Fore.LIGHTBLUE_EX, "O Rename", src, "→", dest)
-        reset_term_color()
+        utils.reset_term_color()
 
     def fs_verbose_mkdir(self, dir_path):
         self.fs_mkdir(dir_path)
         print(Fore.LIGHTGREEN_EX, "* Created", dir_path)
-        reset_term_color()
+        utils.reset_term_color()
 
     def fs_verbose_rm(self, src):
         self.fs_rm(src)
         print(Fore.LIGHTRED_EX, "✕ Removed", src)
-        reset_term_color()
+        utils.reset_term_color()
 
     def fs_verbose_rmdir(self, dir_path):
         self.fs_rmdir(dir_path)
         print(Fore.LIGHTRED_EX, "✕ Removed", dir_path)
-        reset_term_color()
+        utils.reset_term_color()
 
     def copy_all(self, dest_dir_path):
         fs_records = self.fs_recursive_listdir()
@@ -91,14 +91,14 @@ class SweetPyboard(Pyboard):
         for item in filter(lambda rec: rec[1], fs_records):
             self.fs_verbose_get(item[0], dest_dir_path + item[0], chunk_size=256)
         print(Fore.LIGHTGREEN_EX, "✓ Copied all files successfully")
-        reset_term_color()
+        utils.reset_term_color()
 
     def enter_raw_repl_verbose(self, soft_reset=True):
         print(Fore.YELLOW, "- Entering raw repl")
-        reset_term_color()
+        utils.reset_term_color()
         return self.enter_raw_repl(soft_reset)
 
     def exit_raw_repl_verbose(self):
         print(Fore.YELLOW, "- Exiting raw repl")
-        reset_term_color()
+        utils.reset_term_color()
         self.exit_raw_repl()
