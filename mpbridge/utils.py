@@ -52,3 +52,16 @@ def port_abbreviation(port: str):
         elif port[0] == "u":
             port = "/dev/ttyUSB" + port[1:]
     return port
+
+
+def recursive_list_dir(path: str) -> tuple[dict[str, str], dict[str, str]]:
+    out_dirs = {}
+    out_files = {}
+    for abs_dir, dirs, files in os.walk(replace_backslashes(path)):
+        abs_dir = replace_backslashes(abs_dir)
+        rel_dir = abs_dir.removeprefix(path)
+        for dir_name in dirs:
+            out_dirs[f"{rel_dir}/{dir_name}"] = f"{abs_dir}/{dir_name}"
+        for file_name in files:
+            out_files[f"{rel_dir}/{file_name}"] = f"{abs_dir}/{file_name}"
+    return out_dirs, out_files
