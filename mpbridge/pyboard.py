@@ -15,10 +15,10 @@ def iter_dir(dir_path):
             dir_path += "/"
         idir = f"{dir_path}{item[0]}"
         if item[1] == 0x8000:
-            yield idir, True
+            yield idir, True, item[3]
         else:
             yield from iter_dir(idir)
-            yield idir, False
+            yield idir, False, item[3]
 for item in iter_dir("/"):
     print(item, end=",")
 """
@@ -38,7 +38,14 @@ class SweetPyboard(Pyboard):
     def fs_recursive_listdir(self):
         buf, consumer = generate_buffer()
         self.exec_(RECURSIVE_LS, data_consumer=consumer)
-        return eval(f'[{buf.decode("utf-8")}]')
+        dirs = {}
+        files = {}
+        for item in eval(f'[{buf.decode("utf-8")}]'):
+            if item[1]:
+                files[item[0]] = item[2]
+            else:
+                dirs[item[0]] = item[2]
+        return dirs, files
 
     def fs_verbose_get(self, src, dest, chunk_size=1024):
         def print_prog(written, total):
@@ -85,11 +92,11 @@ class SweetPyboard(Pyboard):
         utils.reset_term_color()
 
     def copy_all(self, dest_dir_path):
-        fs_records = self.fs_recursive_listdir()
-        for item in filter(lambda rec: not rec[1], fs_records):
-            os.makedirs(dest_dir_path + item[0], exist_ok=True)
-        for item in filter(lambda rec: rec[1], fs_records):
-            self.fs_verbose_get(item[0], dest_dir_path + item[0], chunk_size=256)
+        rdirs, rfiles = self.fs_recursive_listdir()
+        for rdir in rdirs:
+            os.makedirs(dest_dir_path + rdir, exist_ok=True)
+        for rfile in rfiles:
+            self.fs_verbose_get(rfile, dest_dir_path + rfile, chunk_size=256)
         print(Fore.LIGHTGREEN_EX, "✓ Copied all files successfully")
         utils.reset_term_color()
 
