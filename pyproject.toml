@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mpbridge"
-version = "0.2.0"
+version = "1.0.0"
 description = "File System Bridge to facilitate working with files on Micropython devices"
 license = { file = "LICENSE" }
 keywords = [
@@ -24,6 +24,10 @@ dependencies = [
     "colorama>=0.4.0",
     "mpremote>=0.4.0",
     "click"
+]
+classifiers = [
+    "Programming Language :: Python",
+    "Operating System :: OS Independent"
 ]
 
 [project.scripts]
