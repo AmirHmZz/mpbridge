@@ -50,7 +50,8 @@ def sync(port, dir_path):
 @click.argument('port')
 @click.argument('dir_path', type=click.Path(
     exists=True, file_okay=False, dir_okay=True, resolve_path=True))
-def dev(port, dir_path):
+@click.option('--reset', "-r", is_flag=True, help="Enable automatic hard reset")
+def dev(port, dir_path, reset):
     """Start development mode on <PORT> in specified directory <DIR_PATH>
 
     <PORT> can be full path or :
@@ -61,4 +62,4 @@ def dev(port, dir_path):
 
             c[n]  connect to serial port "COM[n]"
     """
-    bridge.start_dev_mode(port, dir_path)
+    bridge.start_dev_mode(port, dir_path, auto_hard_reset=reset)
