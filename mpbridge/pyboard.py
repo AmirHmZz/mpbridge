@@ -4,6 +4,7 @@ from colorama import Fore
 from mpremote.pyboard import Pyboard
 
 from . import utils
+from .ignore import IgnoreStorage
 
 RECURSIVE_LS = """
 from os import ilistdir
@@ -23,15 +24,16 @@ for item in iter_dir("/"):
     print(item, end=",")
 """
 
-GET_SHA1 = """
+SHA1_FUNC = """
 from hashlib import sha1
-h = sha1()
-b = bytearray(255)
+b = bytearray(1024)
 mv = memoryview(b)
-with open("{}","rb") as f:
-    while s := f.readinto(b):
-        h.update(mv[:s])
-print(h.digest())
+def get_sha1(path):
+    h = sha1()
+    with open(path,"rb") as f:
+        while s := f.readinto(b):
+            h.update(mv[:s])
+    return h.digest()
 """
 
 
@@ -112,25 +114,31 @@ class SweetPyboard(Pyboard):
         utils.reset_term_color()
 
     def sync_with_dir(self, dir_path):
+        print(Fore.YELLOW, "- Syncing files")
+        self.exec_raw_no_follow(SHA1_FUNC)
         dir_path = utils.replace_backslashes(dir_path)
         rdirs, rfiles = self.fs_recursive_listdir()
         ldirs, lfiles = utils.recursive_list_dir(dir_path)
+        ignore = IgnoreStorage(dir_path=dir_path)
         for rdir in rdirs.keys():
-            if rdir not in ldirs:
+            if rdir not in ldirs and not ignore.match_dir(rdir):
                 os.makedirs(dir_path + rdir, exist_ok=True)
         for ldir in ldirs.keys():
-            if ldir not in rdirs:
+            if ldir not in rdirs and not ignore.match_dir(ldir):
                 self.fs_verbose_mkdir(ldir)
         for lfile_rel, lfiles_abs in lfiles.items():
+            if ignore.match_file(lfile_rel):
+                continue
             if rfiles.get(lfile_rel, None) == os.path.getsize(lfiles_abs):
                 if self.get_sha1(lfile_rel) == utils.get_file_sha1(lfiles_abs):
                     continue
             self.fs_verbose_put(lfiles_abs, lfile_rel, chunk_size=256)
-        print(Fore.LIGHTGREEN_EX, "✓ Synced files successfully")
-
         for rfile, rsize in rfiles.items():
+            if ignore.match_file(rfile):
+                continue
             if rfile not in lfiles:
                 self.fs_verbose_get(rfile, dir_path + rfile, chunk_size=256)
+        print(Fore.LIGHTGREEN_EX, "✓ Synced files successfully")
 
     def enter_raw_repl_verbose(self, soft_reset=True):
         print(Fore.YELLOW, "- Entering raw repl")
@@ -143,6 +151,11 @@ class SweetPyboard(Pyboard):
         self.exit_raw_repl()
 
     def get_sha1(self, file_path):
-        buf, consumer = generate_buffer()
-        self.exec_(GET_SHA1.format(file_path), data_consumer=consumer)
-        return eval(buf.decode("utf-8"))
+        return eval(self.eval(
+            f'get_sha1("{file_path}")').decode("utf-8"))
+
+    def verbose_hard_reset(self):
+        self.exec_raw_no_follow("from machine import reset; reset()")
+        self.serial.close()
+        print(Fore.LIGHTGREEN_EX, "✓ Hard reset board successfully")
+        utils.reset_term_color()

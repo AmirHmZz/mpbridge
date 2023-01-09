@@ -15,6 +15,12 @@ def remove_prefix(string: str, prefix: str) -> str:
     return string
 
 
+def remove_suffix(string: str, suffix: str) -> str:
+    if string.endswith(suffix):
+        return string[:-len(suffix)]
+    return string
+
+
 def replace_backslashes(path: str) -> str:
     return path.replace("\\", "/")
 

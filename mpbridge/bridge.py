@@ -1,12 +1,14 @@
 import tempfile
 import time
+from argparse import Namespace
 
 from colorama import Fore
+from mpremote.main import State, argparse_repl
 from watchdog.observers import Observer
 
+from . import utils
 from .handler import EventHandler
 from .pyboard import SweetPyboard
-from . import utils
 
 
 def start_bridge_mode(port: str):
@@ -45,3 +47,47 @@ def sync(port: str, path: str):
     pyb.enter_raw_repl_verbose()
     pyb.sync_with_dir(dir_path=path)
     pyb.exit_raw_repl_verbose()
+
+
+def start_dev_mode(port: str, path: str):
+    path = utils.replace_backslashes(path)
+    port = utils.port_abbreviation(port)
+    print(Fore.YELLOW, f"- Syncing files on {port} with {path}")
+    utils.reset_term_color()
+
+    while True:
+        pyb = SweetPyboard(device=port)
+        pyb.enter_raw_repl_verbose()
+        pyb.sync_with_dir(dir_path=path)
+        old_ls = utils.recursive_list_dir(path)
+        print(Fore.LIGHTWHITE_EX +
+              " ? Press [Enter] to Sync >> Hard Reset >> Enter REPL" +
+              "   Press [Ctrl + C] to exit ", end="")
+        utils.reset_term_color()
+        input()
+        push_deletes(pyb, path, old_ls=old_ls)
+        pyb.sync_with_dir(dir_path=path)
+        pyb.verbose_hard_reset()
+        start_repl(port)
+
+
+def start_repl(port: str):
+    from mpremote.commands import do_connect, do_disconnect
+    from mpremote.repl import do_repl
+    print(Fore.LIGHTMAGENTA_EX, "R Entering REPL using mpremote")
+    utils.reset_term_color()
+    port = utils.port_abbreviation(port)
+    state = State()
+    do_connect(state, Namespace(device=[port], next_command=[]))
+    do_repl(state, argparse_repl().parse_args([]))
+    do_disconnect(state)
+    print("\n" + Fore.LIGHTMAGENTA_EX, "R Exiting REPL")
+    utils.reset_term_color()
+
+
+def push_deletes(pyb, path, old_ls: tuple):
+    new_ls = utils.recursive_list_dir(path)
+    for file in set(old_ls[1]).difference(new_ls[1]):
+        pyb.fs_verbose_rm(file)
+    for ddir in sorted(set(new_ls[0]).difference(new_ls[0]), reverse=True):
+        pyb.fs_verbose_rmdir(ddir)

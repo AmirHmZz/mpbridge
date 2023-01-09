@@ -11,7 +11,7 @@ def main():
     pass
 
 
-@main.command("bridge", short_help='Starts bridge mode')
+@main.command("bridge", short_help='Start bridge mode')
 @click.argument('port')
 def bridge_mode(port):
     """Starts bridge mode on <PORT>
@@ -44,3 +44,21 @@ def sync(port, dir_path):
             c[n]  connect to serial port "COM[n]"
     """
     bridge.sync(port, dir_path)
+
+
+@main.command("dev", short_help='Start development mode')
+@click.argument('port')
+@click.argument('dir_path', type=click.Path(
+    exists=True, file_okay=False, dir_okay=True, resolve_path=True))
+def dev(port, dir_path):
+    """Start development mode on <PORT> in specified directory <DIR_PATH>
+
+    <PORT> can be full path or :
+
+            a[n]  connect to serial port "/dev/ttyACM[n]"
+
+            u[n]  connect to serial port "/dev/ttyUSB[n]"
+
+            c[n]  connect to serial port "COM[n]"
+    """
+    bridge.start_dev_mode(port, dir_path)
