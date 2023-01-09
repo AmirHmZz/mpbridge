@@ -67,10 +67,9 @@ def start_dev_mode(port: str, path: str):
         input()
         push_deletes(pyb, path, old_ls=old_ls)
         pyb.sync_with_dir(dir_path=path)
-        # pyb.verbose_hard_reset()
-        pyb.exit_raw_repl_verbose()
+        pyb.verbose_hard_reset()
         pyb.close()
-        time.sleep(0.3)
+        # time.sleep(0.3)
         start_repl(port)
 
 
