@@ -33,7 +33,7 @@ You can use `mpbridge` in several ways based on your needs:
 
 * Run `mpbridge dev <PORT> <DIR_PARH>`
 * This mode repeats a loop of tasks in specified directory on `MicroPython` device as below :
-    * _Sync files_ → _Wait for changes (Develop your project)_ → _Sync files_ → _Hard reset_ → _Start MicroPython REPL_
+    * _Sync files_ → _Wait for changes (Develop your project)_ → _Sync files_ → _Start MicroPython REPL_
 * This mode is useful when you keep switching between different tools to flash and run new codes repeatedly.
   You can specify your project directory as `DIR_PATH` and `mpbridge` will take care of changes when you are developing
   your project in your desired IDE. You can switch to `MicroPython REPL` anytime you wish to run the updated code on

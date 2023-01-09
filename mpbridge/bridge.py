@@ -49,7 +49,7 @@ def sync(port: str, path: str):
     pyb.exit_raw_repl_verbose()
 
 
-def start_dev_mode(port: str, path: str):
+def start_dev_mode(port: str, path: str, auto_hard_reset: bool):
     path = utils.replace_backslashes(path)
     port = utils.port_abbreviation(port)
     print(Fore.YELLOW, f"- Syncing files on {port} with {path}")
@@ -61,13 +61,19 @@ def start_dev_mode(port: str, path: str):
         pyb.sync_with_dir(dir_path=path)
         old_ls = utils.recursive_list_dir(path)
         print(Fore.LIGHTWHITE_EX +
-              " ? Press [Enter] to Sync >> Hard Reset >> Enter REPL" +
+              " ? Press [Enter] to Sync & Enter REPL\n" +
               "   Press [Ctrl + C] to exit ", end="")
         utils.reset_term_color()
         input()
         push_deletes(pyb, path, old_ls=old_ls)
         pyb.sync_with_dir(dir_path=path)
-        pyb.verbose_hard_reset()
+        if auto_hard_reset:
+            pyb.verbose_hard_reset()
+            pyb.close()
+            time.sleep(1)
+        else:
+            pyb.exit_raw_repl()
+            pyb.close()
         start_repl(port)
 
 
