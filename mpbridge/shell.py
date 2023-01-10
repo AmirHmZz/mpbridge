@@ -32,7 +32,8 @@ def bridge_mode(port):
 @click.argument('port')
 @click.argument('dir_path', type=click.Path(
     exists=True, file_okay=False, dir_okay=True, resolve_path=True))
-def sync(port, dir_path):
+@click.option('--clean', "-c", is_flag=True, help="Perform a clean sync")
+def sync(port, dir_path, clean):
     """Sync files of <PORT> with specified directory <DIR_PATH>
 
     <PORT> can be full path or :
@@ -43,7 +44,7 @@ def sync(port, dir_path):
 
             c[n]  connect to serial port "COM[n]"
     """
-    bridge.sync(port, dir_path)
+    bridge.sync(port, dir_path, clean)
 
 
 @main.command("dev", short_help='Start development mode')
