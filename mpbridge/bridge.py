@@ -75,6 +75,7 @@ def start_dev_mode(port: str, path: str, auto_hard_reset: bool):
             time.sleep(1)
         else:
             pyb.exit_raw_repl()
+            pyb.verbose_soft_reset()
             pyb.close()
         start_repl(port)
 
