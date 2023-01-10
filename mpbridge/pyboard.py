@@ -1,4 +1,5 @@
 import os
+from contextlib import suppress
 
 from colorama import Fore
 from mpremote.pyboard import Pyboard
@@ -139,6 +140,20 @@ class SweetPyboard(Pyboard):
             if rfile not in lfiles:
                 self.fs_verbose_get(rfile, dir_path + rfile, chunk_size=256)
         print(Fore.LIGHTGREEN_EX, "✓ Synced files successfully")
+
+    def delete_absent_items(self, dir_path):
+        dir_path = utils.replace_backslashes(dir_path)
+        rdirs, rfiles = self.fs_recursive_listdir()
+        ldirs, lfiles = utils.recursive_list_dir(dir_path)
+        ignore = IgnoreStorage(dir_path=dir_path)
+        for rfile, rsize in rfiles.items():
+            if not ignore.match_file(rfile) and rfile not in lfiles:
+                self.fs_verbose_rm(rfile)
+        for ldir in ldirs.keys():
+            if not ignore.match_dir(ldir) and ldir not in rdirs:
+                # There might be ignored files in folders
+                with suppress(Exception):
+                    self.fs_verbose_rmdir(ldir)
 
     def enter_raw_repl_verbose(self, soft_reset=True):
         print(Fore.YELLOW, "- Entering raw repl")
