@@ -65,8 +65,8 @@ class SweetPyboard(Pyboard):
         def print_prog(written, total):
             utils.print_progress_bar(
                 iteration=written, total=total, decimals=0,
-                prefix=f"{Fore.LIGHTCYAN_EX} ↓ Getting {src}\t\t",
-                suffix="Complete", length=20)
+                prefix=f"{Fore.LIGHTCYAN_EX} ↓ Getting {src}".ljust(60),
+                suffix="Complete", length=15)
 
         self.fs_get(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
         print_prog(1, 1)
@@ -76,8 +76,8 @@ class SweetPyboard(Pyboard):
         def print_prog(written, total):
             utils.print_progress_bar(
                 iteration=written, total=total, decimals=0,
-                prefix=f"{Fore.LIGHTYELLOW_EX} ↑ Putting {dest}\t\t",
-                suffix="Complete", length=20)
+                prefix=f"{Fore.LIGHTYELLOW_EX} ↑ Putting {dest}".ljust(60),
+                suffix="Complete", length=15)
 
         self.fs_put(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
         print_prog(1, 1)
