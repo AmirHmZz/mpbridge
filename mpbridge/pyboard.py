@@ -20,7 +20,7 @@ def iter_dir(dir_path):
             yield idir, True, item[3]
         else:
             yield from iter_dir(idir)
-            yield idir, False, item[3]
+            yield idir, False, 0
 for item in iter_dir("/"):
     print(item, end=",")
 """
