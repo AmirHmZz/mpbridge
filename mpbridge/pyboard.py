@@ -174,3 +174,7 @@ class SweetPyboard(Pyboard):
         self.serial.close()
         print(Fore.LIGHTGREEN_EX, "✓ Hard reset board successfully")
         utils.reset_term_color()
+
+    def verbose_soft_reset(self):
+        self.serial.write(b"\x04")
+        print(Fore.LIGHTGREEN_EX, "✓ Soft reset board successfully")

@@ -51,7 +51,7 @@ def sync(port: str, path: str, clean: bool):
     pyb.exit_raw_repl_verbose()
 
 
-def start_dev_mode(port: str, path: str, auto_hard_reset: bool):
+def start_dev_mode(port: str, path: str, auto_reset: str):
     path = utils.replace_backslashes(path)
     port = utils.port_abbreviation(port)
     print(Fore.YELLOW, f"- Syncing files on {port} with {path}")
@@ -69,12 +69,16 @@ def start_dev_mode(port: str, path: str, auto_hard_reset: bool):
         input()
         push_deletes(pyb, path, old_ls=old_ls)
         pyb.sync_with_dir(dir_path=path)
-        if auto_hard_reset:
+        if auto_reset is None:
+            pyb.exit_raw_repl()
+            pyb.close()
+        elif auto_reset == "hard":
             pyb.verbose_hard_reset()
             pyb.close()
             time.sleep(1)
-        else:
+        elif auto_reset == "soft":
             pyb.exit_raw_repl()
+            pyb.verbose_soft_reset()
             pyb.close()
         start_repl(port)
 

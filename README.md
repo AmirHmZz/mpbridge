@@ -38,7 +38,9 @@ You can use `mpbridge` in several ways based on your needs:
   You can specify your project directory as `DIR_PATH` and `mpbridge` will take care of changes when you are developing
   your project in your desired IDE. You can switch to `MicroPython REPL` anytime you wish to run the updated code on
   your board.
-
+* Automatic reset before entering MicroPython REPL can be enabled with `--auto-reset` option which can be set to
+  `soft` (soft reset) or `hard` (hard reset).
+  
 **Note** : `<PORT>` can be the **full port path** or one of the **short forms** below :
 
 * `c[n]` for `COM[n]` (`c3` is equal to `COM3`)
