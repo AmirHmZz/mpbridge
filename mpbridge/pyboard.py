@@ -155,6 +155,15 @@ class SweetPyboard(Pyboard):
                 with suppress(Exception):
                     self.fs_verbose_rmdir(ldir)
 
+    def clear_all(self):
+        print(Fore.YELLOW, "- Deleting all files from MicroPython board")
+        rdirs, rfiles = self.fs_recursive_listdir()
+        for rfile in rfiles.keys():
+            self.fs_verbose_rm(rfile)
+        for rdir in rdirs.keys():
+            self.fs_verbose_rmdir(rdir)
+        print(Fore.LIGHTGREEN_EX, "✓ Deleted all files from MicroPython board")
+
     def enter_raw_repl_verbose(self, soft_reset=True):
         print(Fore.YELLOW, "- Entering raw repl")
         utils.reset_term_color()

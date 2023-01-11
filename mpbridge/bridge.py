@@ -83,6 +83,14 @@ def start_dev_mode(port: str, path: str, auto_reset: str):
         start_repl(port)
 
 
+def clear(port: str):
+    port = utils.port_abbreviation(port)
+    pyb = SweetPyboard(device=port)
+    pyb.enter_raw_repl_verbose()
+    pyb.clear_all()
+    pyb.exit_raw_repl_verbose()
+
+
 def start_repl(port: str):
     from mpremote.commands import do_connect, do_disconnect
     from mpremote.repl import do_repl

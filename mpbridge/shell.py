@@ -65,3 +65,19 @@ def dev(port, dir_path, auto_reset):
             c[n]  connect to serial port "COM[n]"
     """
     bridge.start_dev_mode(port, dir_path, auto_reset=auto_reset)
+
+
+@main.command("clear", short_help='Delete all files from MicroPython device')
+@click.argument('port')
+def clear(port):
+    """Delete all files from MicroPython device connected to <PORT>
+
+    <PORT> can be full path or :
+
+            a[n]  connect to serial port "/dev/ttyACM[n]"
+
+            u[n]  connect to serial port "/dev/ttyUSB[n]"
+
+            c[n]  connect to serial port "COM[n]"
+    """
+    bridge.clear(port=port)

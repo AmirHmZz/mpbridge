@@ -40,7 +40,12 @@ You can use `mpbridge` in several ways based on your needs:
   your board.
 * Automatic reset before entering MicroPython REPL can be enabled with `--auto-reset` option which can be set to
   `soft` (soft reset) or `hard` (hard reset).
-  
+
+#### ⚜️ Delete all files
+
+* Run `mpbridge clear <PORT>`
+* This command deletes all files and directories from `MicroPython` board and exits.
+
 **Note** : `<PORT>` can be the **full port path** or one of the **short forms** below :
 
 * `c[n]` for `COM[n]` (`c3` is equal to `COM3`)
