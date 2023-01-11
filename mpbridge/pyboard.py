@@ -2,7 +2,7 @@ import os
 from contextlib import suppress
 
 from colorama import Fore
-from mpremote.pyboard import Pyboard
+from mpremote.pyboard import Pyboard, PyboardError
 
 from . import utils
 from .ignore import IgnoreStorage
@@ -101,8 +101,12 @@ class SweetPyboard(Pyboard):
         utils.reset_term_color()
 
     def fs_verbose_rmdir(self, dir_path):
-        self.fs_rmdir(dir_path)
-        print(Fore.LIGHTRED_EX, "✕ Removed", dir_path)
+        try:
+            self.fs_rmdir(dir_path)
+        except PyboardError:
+            print(Fore.RED, "E Cannot remove directory", dir_path, "as it might be mounted")
+        else:
+            print(Fore.LIGHTRED_EX, "✕ Removed", dir_path)
         utils.reset_term_color()
 
     def copy_all(self, dest_dir_path):
