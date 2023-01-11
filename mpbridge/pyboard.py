@@ -153,11 +153,11 @@ class SweetPyboard(Pyboard):
         for rfile, rsize in rfiles.items():
             if not ignore.match_file(rfile) and rfile not in lfiles:
                 self.fs_verbose_rm(rfile)
-        for ldir in ldirs.keys():
-            if not ignore.match_dir(ldir) and ldir not in rdirs:
+        for rdir in rdirs.keys():
+            if not ignore.match_dir(rdir) and rdir not in ldirs:
                 # There might be ignored files in folders
                 with suppress(Exception):
-                    self.fs_verbose_rmdir(ldir)
+                    self.fs_verbose_rmdir(rdir)
 
     def clear_all(self):
         print(Fore.YELLOW, "- Deleting all files from MicroPython board")
