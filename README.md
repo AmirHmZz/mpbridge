@@ -46,6 +46,11 @@ You can use `mpbridge` in several ways based on your needs:
 * Run `mpbridge clear <PORT>`
 * This command deletes all files and directories from `MicroPython` board and exits.
 
+#### ⚜️ List all connected devices
+
+* Run `mpbridge list`
+* This command lists all connected devices.
+
 **Note** : `<PORT>` can be the **full port path** or one of the **short forms** below :
 
 * `c[n]` for `COM[n]` (`c3` is equal to `COM3`)

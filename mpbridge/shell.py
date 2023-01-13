@@ -81,3 +81,12 @@ def clear(port):
             c[n]  connect to serial port "COM[n]"
     """
     bridge.clear(port=port)
+
+
+@main.command("list", short_help='List available devices')
+def list_devices():
+    """List available devices
+
+    [device] [serial_number] [vid]:[pid] [manufacturer] [product]
+        """
+    bridge.list_devices()
