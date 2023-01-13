@@ -2,6 +2,7 @@ import tempfile
 import time
 from argparse import Namespace
 
+import serial.tools.list_ports
 from colorama import Fore
 from mpremote.main import State, argparse_repl
 from watchdog.observers import Observer
@@ -111,3 +112,21 @@ def push_deletes(pyb, path, old_ls: tuple):
         pyb.fs_verbose_rm(file)
     for ddir in sorted(set(new_ls[0]).difference(new_ls[0]), reverse=True):
         pyb.fs_verbose_rmdir(ddir)
+
+
+def list_devices():
+    ports = sorted(serial.tools.list_ports.comports())
+    if ports:
+        for i, port in enumerate(ports):
+            print(Fore.LIGHTYELLOW_EX,
+                  "{}. {} {} {:04x}:{:04x} {} {}".format(
+                      i + 1,
+                      port.device,
+                      port.serial_number or "null",
+                      port.vid if isinstance(port.vid, int) else 0,
+                      port.pid if isinstance(port.pid, int) else 0,
+                      port.manufacturer or "null",
+                      port.product or "null"))
+    else:
+        print(Fore.LIGHTYELLOW_EX, "Couldn't find any connected devices")
+    utils.reset_term_color()
