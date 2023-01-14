@@ -52,7 +52,7 @@ def sync(port: str, path: str, clean: bool):
     pyb.exit_raw_repl_verbose()
 
 
-def start_dev_mode(port: str, path: str, auto_reset: str):
+def start_dev_mode(port: str, path: str, auto_reset: str, no_prompt: bool):
     path = utils.replace_backslashes(path)
     port = utils.port_abbreviation(port)
     print(Fore.YELLOW, f"- Syncing files on {port} with {path}")
@@ -61,14 +61,14 @@ def start_dev_mode(port: str, path: str, auto_reset: str):
     while True:
         pyb = SweetPyboard(device=port)
         pyb.enter_raw_repl_verbose()
-        pyb.sync_with_dir(dir_path=path)
-        old_ls = utils.recursive_list_dir(path)
-        print(Fore.LIGHTWHITE_EX +
-              " ? Press [Enter] to Sync & Enter REPL\n" +
-              "   Press [Ctrl + C] to exit ", end="")
-        utils.reset_term_color()
-        input()
-        push_deletes(pyb, path, old_ls=old_ls)
+        if not no_prompt:
+            pyb.sync_with_dir(dir_path=path)
+            print(Fore.LIGHTWHITE_EX +
+                  " ? Press [Enter] to Sync & Enter REPL\n" +
+                  "   Press [Ctrl + C] to exit ", end="")
+            utils.reset_term_color()
+            input()
+        pyb.delete_absent_items(dir_path=path)
         pyb.sync_with_dir(dir_path=path)
         if auto_reset is None:
             pyb.exit_raw_repl()
@@ -104,14 +104,6 @@ def start_repl(port: str):
     do_disconnect(state)
     print("\n" + Fore.LIGHTMAGENTA_EX, "R Exiting REPL")
     utils.reset_term_color()
-
-
-def push_deletes(pyb, path, old_ls: tuple):
-    new_ls = utils.recursive_list_dir(path)
-    for file in set(old_ls[1]).difference(new_ls[1]):
-        pyb.fs_verbose_rm(file)
-    for ddir in sorted(set(new_ls[0]).difference(new_ls[0]), reverse=True):
-        pyb.fs_verbose_rmdir(ddir)
 
 
 def list_devices():
