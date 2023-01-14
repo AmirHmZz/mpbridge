@@ -51,9 +51,10 @@ def sync(port, dir_path, clean):
 @click.argument('port')
 @click.argument('dir_path', type=click.Path(
     exists=True, file_okay=False, dir_okay=True, resolve_path=True))
-@click.option('--auto-reset',
+@click.option('--auto-reset', help="Enables auto reset before entering REPL",
               type=click.Choice(['soft', 'hard'], case_sensitive=False))
-def dev(port, dir_path, auto_reset):
+@click.option('--no-prompt', is_flag=True, help="Disables prompt for entering REPL")
+def dev(port, dir_path, auto_reset, no_prompt: bool):
     """Start development mode on <PORT> in specified directory <DIR_PATH>
 
     <PORT> can be full path or :
@@ -64,7 +65,7 @@ def dev(port, dir_path, auto_reset):
 
             c[n]  connect to serial port "COM[n]"
     """
-    bridge.start_dev_mode(port, dir_path, auto_reset=auto_reset)
+    bridge.start_dev_mode(port, dir_path, auto_reset=auto_reset, no_prompt=no_prompt)
 
 
 @main.command("clear", short_help='Delete all files from MicroPython device')
