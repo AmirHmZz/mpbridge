@@ -1,11 +1,11 @@
-# 📂 MPBridge ![Python Version](https://img.shields.io/badge/Python-3.7%20or%20later-blue?style=flat-square) ![PyPI Version](https://img.shields.io/pypi/v/mpbridge?label=PyPI%20Version&style=flat-square) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/AmirHmZz/mpbridge/python-publish.yml?label=Builds&style=flat-square) ![PyPI - Downloads](https://img.shields.io/pypi/dm/MPbridge?label=Downloads&style=flat-square)
+# 📂 MPBridge ![Python Version](https://img.shields.io/badge/Python-3.7%20or%20later-blue?style=flat-square) ![PyPI Version](https://img.shields.io/pypi/v/mpbridge?label=PyPI%20Version&style=flat-square) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/AmirHmZz/mpbridge/python-publish.yml?label=Builds&style=flat-square)
 
 CLI tool to synchronise and manage files on a [MicroPython](https://github.com/micropython/micropython)
 running device.
 
 ## 📥 Installation
 
-`mpbridge` must be installed with `sudo` or `administrator` level of permission in order to be accessible in terminal:
+`mpbridge` must be installed with `sudo` or `administrator` level of permission in order to be accessible from terminal:
 
 * **Windows :** Open `cmd.exe` as administrator and run `pip install -U mpbridge`
 * **Linux / MacOS :** Run `sudo pip install -U mpbridge`
@@ -34,7 +34,7 @@ You can use `mpbridge` in several ways based on your needs:
 * Run `mpbridge dev <PORT> <DIR_PARH>`
 * This mode repeats a loop of tasks in specified directory on `MicroPython` device as below:
     * _Sync_ → _Prompt to enter REPL_ → _Clean Sync_ → _Start MicroPython REPL_
-* You can also disable prompt with`--no-prompt` option to speed things:
+* You can also disable prompt with `--no-prompt` option to speed things:
     * _Clean Sync_ → _Start MicroPython REPL_
 * This mode is useful when you keep switching between different tools to flash and run new codes repeatedly.
   You can specify your project directory as `DIR_PATH` and `mpbridge` will take care of changes when you are developing
