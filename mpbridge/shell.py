@@ -31,10 +31,12 @@ def bridge_mode(port):
 @main.command("sync", short_help='Sync files with a directory')
 @click.argument('port')
 @click.argument('dir_path', type=click.Path(
-    exists=True, file_okay=False, dir_okay=True, resolve_path=True))
+    exists=True, file_okay=False, dir_okay=True, resolve_path=True), default="")
 @click.option('--clean', "-c", is_flag=True, help="Perform a clean sync")
 def sync(port, dir_path, clean):
     """Sync files of <PORT> with specified directory <DIR_PATH>
+
+    If <DIR_PATH> is not set, it defaults to the current path
 
     <PORT> can be full path or :
 
@@ -50,12 +52,14 @@ def sync(port, dir_path, clean):
 @main.command("dev", short_help='Start development mode')
 @click.argument('port')
 @click.argument('dir_path', type=click.Path(
-    exists=True, file_okay=False, dir_okay=True, resolve_path=True))
+    exists=True, file_okay=False, dir_okay=True, resolve_path=True), default="")
 @click.option('--auto-reset', help="Enables auto reset before entering REPL",
               type=click.Choice(['soft', 'hard'], case_sensitive=False))
 @click.option('--no-prompt', is_flag=True, help="Disables prompt for entering REPL")
 def dev(port, dir_path, auto_reset, no_prompt: bool):
     """Start development mode on <PORT> in specified directory <DIR_PATH>
+
+    If <DIR_PATH> is not set, it defaults to the current path
 
     <PORT> can be full path or :
 
