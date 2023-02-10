@@ -119,7 +119,7 @@ class SweetPyboard(Pyboard):
         utils.reset_term_color()
 
     def sync_with_dir(self, dir_path):
-        print(Fore.YELLOW, "- Syncing files")
+        print(Fore.YELLOW, "- Syncing")
         self.exec_raw_no_follow(SHA1_FUNC)
         dir_path = utils.replace_backslashes(dir_path)
         rdirs, rfiles = self.fs_recursive_listdir()
@@ -143,7 +143,7 @@ class SweetPyboard(Pyboard):
                 continue
             if rfile not in lfiles:
                 self.fs_verbose_get(rfile, dir_path + rfile, chunk_size=256)
-        print(Fore.LIGHTGREEN_EX, "✓ Synced files successfully")
+        print(Fore.LIGHTGREEN_EX, "✓ Files synced successfully")
 
     def delete_absent_items(self, dir_path):
         dir_path = utils.replace_backslashes(dir_path)
