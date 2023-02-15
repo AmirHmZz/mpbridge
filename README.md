@@ -7,23 +7,23 @@ running device.
 
 `mpbridge` must be installed with `sudo` or `administrator` level of permission in order to be accessible from terminal:
 
-* **Windows :** Open `cmd.exe` as administrator and run `pip install -U mpbridge`
-* **Linux / MacOS :** Run `sudo pip install -U mpbridge`
+* **Windows :** Open `cmd.exe` or `powershell.exe` as administrator and run `pip install -U mpbridge`.
+* **Linux / MacOS :** Run `sudo pip install -U mpbridge`.
 
-## 🪄 How to use
+## 🔎 How to use
 
 You can use `mpbridge` in several ways based on your needs:
 
 #### ⚜️ Bridge Mode
 
-* Run `mpbridge bridge <PORT>`
+* Run `mpbridge bridge [PORT]`.
 * This mode copies all files and folders from your `MicroPython` board into a temporary directory on your local device
   and listens for any filesystem events on local directory to apply them on your board. It keeps raw repl open, so you
   cannot use serial port in other applications simultaneously.
 
 #### ⚜️ Sync Directory
 
-* Run `mpbridge sync <PORT> <DIR_PARH>`
+* Run `mpbridge sync [PORT] [DIR_PARH]`.
 * This command syncs a specified local directory with a `MicroPython` board. The sync process will push
   all modified files and folders into board and also pull changes from board and exits.
 * If a conflict occurs, `mpbridge` will choose the **local version** of file automatically and
@@ -31,7 +31,9 @@ You can use `mpbridge` in several ways based on your needs:
 
 #### ⚜️ Development Mode
 
-* Run `mpbridge dev <PORT> <DIR_PARH>`
+![](flowchart_dev.svg)
+
+* Run `mpbridge dev [PORT] [DIR_PARH]`.
 * This mode repeats a loop of tasks in specified directory on `MicroPython` device as below:
     * _Sync_ → _Prompt to enter REPL_ → _Clean Sync_ → _Start MicroPython REPL_
 * You can also disable prompt with `--no-prompt` option to speed things:
@@ -40,24 +42,25 @@ You can use `mpbridge` in several ways based on your needs:
   You can specify your project directory as `DIR_PATH` and `mpbridge` will take care of changes when you are developing
   your project in your desired IDE. You can switch to `MicroPython REPL` anytime you wish to run the updated code on
   your board.
+* Default to current path of terminal if not set the `DIR_PATH`.
 * Automatic reset before entering MicroPython REPL can be enabled with `--auto-reset` option which can be set to
   `soft` (soft reset) or `hard` (hard reset).
 
 #### ⚜️ Delete all files
 
-* Run `mpbridge clear <PORT>`
+* Run `mpbridge clear [PORT]`.
 * This command deletes all files and directories from `MicroPython` board and exits.
 
 #### ⚜️ List all connected devices
 
-* Run `mpbridge list`
+* Run `mpbridge list`.
 * This command lists all connected devices.
 
-**Note** : `<PORT>` can be the **full port path** or one of the **short forms** below :
+**Note** : `[PORT]` can be the **full port path** or one of the **short forms** below :
 
-* `c[n]` for `COM[n]` (`c3` is equal to `COM3`)
-* `u[n]` for `/dev/ttyUSB[n]` (`u3` is equal to `/dev/ttyUSB3`)
-* `a[n]` for `/dev/ttyACM[n]` (`a3` is equal to `/dev/ttyACM3`)
+* `c[n]` for `COM[n]` (`c3` is equal to `COM3`).
+* `u[n]` for `/dev/ttyUSB[n]` (`u3` is equal to `/dev/ttyUSB3`).
+* `a[n]` for `/dev/ttyACM[n]` (`a3` is equal to `/dev/ttyACM3`).
 
 ## 👀 Ignore files
 
@@ -74,7 +77,7 @@ tests/test_2.py
 
 * `mpbridge.ignore` syntax is not as same as `.gitignore` files.
 * At this time `mpbridge.ignore` only supports specifying file and directory paths directly.
-* You should add a **slash** at the end of directory names: `dir1/`
+* You should add a **slash** at the end of directory names: `dir1/`.
 
 ## ✅ Supported platforms
 
