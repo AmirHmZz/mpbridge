@@ -47,6 +47,7 @@ def sync(port: str, path: str, clean: bool):
     pyb = SweetPyboard(device=port)
     pyb.enter_raw_repl_verbose()
     if clean:
+        print(Fore.YELLOW, "Clean Sync files")
         pyb.delete_absent_items(dir_path=path)
     pyb.sync_with_dir(dir_path=path)
     pyb.exit_raw_repl_verbose()
@@ -62,12 +63,14 @@ def start_dev_mode(port: str, path: str, auto_reset: str, no_prompt: bool):
         pyb = SweetPyboard(device=port)
         pyb.enter_raw_repl_verbose()
         if not no_prompt:
+            print(Fore.YELLOW, "- Sync files")
             pyb.sync_with_dir(dir_path=path)
             print(Fore.LIGHTWHITE_EX +
-                  " ? Press [Enter] to Sync & Enter REPL\n" +
+                  " ? Press [Enter] to Clean Sync & Enter REPL\n" +
                   "   Press [Ctrl + C] to exit ", end="")
             utils.reset_term_color()
             input()
+        print(Fore.YELLOW, "- Clean Sync files")
         pyb.delete_absent_items(dir_path=path)
         pyb.sync_with_dir(dir_path=path)
         if auto_reset is None:
