@@ -82,6 +82,7 @@ tests/test_2.py
 * `mpbridge.ignore` syntax is not as same as `.gitignore` files.
 * At this time `mpbridge.ignore` only supports specifying file and directory paths directly.
 * You should add a **slash** at the end of directory names: `dir1/`.
+* Performing `sync` with `--dry-run` flag can be helpful for debugging your ignore files.
 
 ## ✅ Supported platforms
 

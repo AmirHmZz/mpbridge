@@ -61,48 +61,54 @@ class SweetPyboard(Pyboard):
                 dirs[item[0]] = item[2]
         return dirs, files
 
-    def fs_verbose_get(self, src, dest, chunk_size=1024):
+    def fs_verbose_get(self, src, dest, chunk_size=1024, dry: bool = False):
         def print_prog(written, total):
             utils.print_progress_bar(
                 iteration=written, total=total, decimals=0,
                 prefix=f"{Fore.LIGHTCYAN_EX} ↓ Getting {src}".ljust(60),
                 suffix="Complete", length=15)
 
-        self.fs_get(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
+        if not dry:
+            self.fs_get(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
         print_prog(1, 1)
         utils.reset_term_color(new_line=True)
 
-    def fs_verbose_put(self, src, dest, chunk_size=1024):
+    def fs_verbose_put(self, src, dest, chunk_size=1024, dry: bool = False):
         def print_prog(written, total):
             utils.print_progress_bar(
                 iteration=written, total=total, decimals=0,
                 prefix=f"{Fore.LIGHTYELLOW_EX} ↑ Putting {dest}".ljust(60),
                 suffix="Complete", length=15)
 
-        self.fs_put(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
+        if not dry:
+            self.fs_put(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
         print_prog(1, 1)
         utils.reset_term_color(new_line=True)
 
-    def fs_verbose_rename(self, src, dest):
-        buf, consumer = generate_buffer()
-        self.exec_(f'from os import rename; rename("{src}", "{dest}")',
-                   data_consumer=consumer)
+    def fs_verbose_rename(self, src, dest, dry: bool = False):
+        if not dry:
+            buf, consumer = generate_buffer()
+            self.exec_(f'from os import rename; rename("{src}", "{dest}")',
+                       data_consumer=consumer)
         print(Fore.LIGHTBLUE_EX, "O Rename", src, "→", dest)
         utils.reset_term_color()
 
-    def fs_verbose_mkdir(self, dir_path):
-        self.fs_mkdir(dir_path)
+    def fs_verbose_mkdir(self, dir_path, dry: bool = False):
+        if not dry:
+            self.fs_mkdir(dir_path)
         print(Fore.LIGHTGREEN_EX, "* Created", dir_path)
         utils.reset_term_color()
 
-    def fs_verbose_rm(self, src):
-        self.fs_rm(src)
+    def fs_verbose_rm(self, src, dry: bool = False):
+        if not dry:
+            self.fs_rm(src)
         print(Fore.LIGHTRED_EX, "✕ Removed", src)
         utils.reset_term_color()
 
-    def fs_verbose_rmdir(self, dir_path):
+    def fs_verbose_rmdir(self, dir_path, dry: bool = False):
         try:
-            self.fs_rmdir(dir_path)
+            if not dry:
+                self.fs_rmdir(dir_path)
         except PyboardError:
             print(Fore.RED, "E Cannot remove directory", dir_path, "as it might be mounted")
         else:
@@ -118,46 +124,47 @@ class SweetPyboard(Pyboard):
         print(Fore.LIGHTGREEN_EX, "✓ Copied all files successfully")
         utils.reset_term_color()
 
-    def sync_with_dir(self, dir_path):
+    def sync_with_dir(self, dir_path, dry: bool = False):
         print(Fore.YELLOW, "- Syncing")
         self.exec_raw_no_follow(SHA1_FUNC)
         dir_path = utils.replace_backslashes(dir_path)
         rdirs, rfiles = self.fs_recursive_listdir()
         ldirs, lfiles = utils.recursive_list_dir(dir_path)
         ignore = IgnoreStorage(dir_path=dir_path)
-        for rdir in rdirs.keys():
-            if rdir not in ldirs and not ignore.match_dir(rdir):
-                os.makedirs(dir_path + rdir, exist_ok=True)
+        if not dry:
+            for rdir in rdirs.keys():
+                if rdir not in ldirs and not ignore.match_dir(rdir):
+                    os.makedirs(dir_path + rdir, exist_ok=True)
         for ldir in ldirs.keys():
             if ldir not in rdirs and not ignore.match_dir(ldir):
-                self.fs_verbose_mkdir(ldir)
+                self.fs_verbose_mkdir(ldir, dry=dry)
         for lfile_rel, lfiles_abs in lfiles.items():
             if ignore.match_file(lfile_rel):
                 continue
             if rfiles.get(lfile_rel, None) == os.path.getsize(lfiles_abs):
                 if self.get_sha1(lfile_rel) == utils.get_file_sha1(lfiles_abs):
                     continue
-            self.fs_verbose_put(lfiles_abs, lfile_rel, chunk_size=256)
+            self.fs_verbose_put(lfiles_abs, lfile_rel, chunk_size=256, dry=dry)
         for rfile, rsize in rfiles.items():
             if ignore.match_file(rfile):
                 continue
             if rfile not in lfiles:
-                self.fs_verbose_get(rfile, dir_path + rfile, chunk_size=256)
+                self.fs_verbose_get(rfile, dir_path + rfile, chunk_size=256, dry=dry)
         print(Fore.LIGHTGREEN_EX, "✓ Files synced successfully")
 
-    def delete_absent_items(self, dir_path):
+    def delete_absent_items(self, dir_path, dry: bool = False):
         dir_path = utils.replace_backslashes(dir_path)
         rdirs, rfiles = self.fs_recursive_listdir()
         ldirs, lfiles = utils.recursive_list_dir(dir_path)
         ignore = IgnoreStorage(dir_path=dir_path)
         for rfile, rsize in rfiles.items():
             if not ignore.match_file(rfile) and rfile not in lfiles:
-                self.fs_verbose_rm(rfile)
+                self.fs_verbose_rm(rfile, dry=dry)
         for rdir in rdirs.keys():
             if not ignore.match_dir(rdir) and rdir not in ldirs:
                 # There might be ignored files in folders
                 with suppress(Exception):
-                    self.fs_verbose_rmdir(rdir)
+                    self.fs_verbose_rmdir(rdir, dry=dry)
 
     def clear_all(self):
         print(Fore.YELLOW, "- Deleting all files from MicroPython board")

@@ -40,7 +40,7 @@ def start_bridge_mode(port: str):
         observer.join()
 
 
-def sync(port: str, path: str, clean: bool):
+def sync(port: str, path: str, clean: bool, dry_run: bool):
     port = utils.port_abbreviation(port)
     print(Fore.YELLOW, f"- Syncing files on {port} with {path}")
     utils.reset_term_color()
@@ -48,8 +48,8 @@ def sync(port: str, path: str, clean: bool):
     pyb.enter_raw_repl_verbose()
     if clean:
         print(Fore.YELLOW, "Clean Sync files")
-        pyb.delete_absent_items(dir_path=path)
-    pyb.sync_with_dir(dir_path=path)
+        pyb.delete_absent_items(dir_path=path, dry=dry_run)
+    pyb.sync_with_dir(dir_path=path, dry=dry_run)
     pyb.exit_raw_repl_verbose()
 
 
