@@ -33,7 +33,8 @@ def bridge_mode(port):
 @click.argument('dir_path', type=click.Path(
     exists=True, file_okay=False, dir_okay=True, resolve_path=True), default="")
 @click.option('--clean', "-c", is_flag=True, help="Execute Clean Sync")
-def sync(port, dir_path, clean):
+@click.option('--dry-run', "-d", is_flag=True, help="Test Sync command without performing any actions")
+def sync(port, dir_path, clean, dry_run):
     """Sync files of on [PORT] in specified directory [DIR_PATH]
 
     If [DIR_PATH] is not set, it defaults to the current path
@@ -66,7 +67,7 @@ def sync(port, dir_path, clean):
 
             and then push the different files from the local to the device.
     """
-    bridge.sync(port, dir_path, clean)
+    bridge.sync(port, dir_path, clean, dry_run)
 
 
 @main.command("dev", short_help='Start development mode')
