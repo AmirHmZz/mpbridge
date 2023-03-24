@@ -40,16 +40,16 @@ def start_bridge_mode(port: str):
         observer.join()
 
 
-def sync(port: str, path: str, clean: bool, dry_run: bool):
+def sync(port: str, path: str, clean: bool, dry_run: bool, push_only: bool):
     port = utils.port_abbreviation(port)
     print(Fore.YELLOW, f"- Syncing files on {port} with {path}")
     utils.reset_term_color()
     pyb = SweetPyboard(device=port)
     pyb.enter_raw_repl_verbose()
     if clean:
-        print(Fore.YELLOW, "Clean Sync files")
+        print(Fore.YELLOW, f"Removing absent files from {port}")
         pyb.delete_absent_items(dir_path=path, dry=dry_run)
-    pyb.sync_with_dir(dir_path=path, dry=dry_run)
+    pyb.sync_with_dir(dir_path=path, dry=dry_run, push=push_only)
     pyb.exit_raw_repl_verbose()
 
 
