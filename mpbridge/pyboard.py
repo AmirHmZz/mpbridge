@@ -124,14 +124,14 @@ class SweetPyboard(Pyboard):
         print(Fore.LIGHTGREEN_EX, "✓ Copied all files successfully")
         utils.reset_term_color()
 
-    def sync_with_dir(self, dir_path, dry: bool = False):
+    def sync_with_dir(self, dir_path, dry: bool = False, push: bool = False):
         print(Fore.YELLOW, "- Syncing")
         self.exec_raw_no_follow(SHA1_FUNC)
         dir_path = utils.replace_backslashes(dir_path)
         rdirs, rfiles = self.fs_recursive_listdir()
         ldirs, lfiles = utils.recursive_list_dir(dir_path)
         ignore = IgnoreStorage(dir_path=dir_path)
-        if not dry:
+        if (not dry) and (not push):
             for rdir in rdirs.keys():
                 if rdir not in ldirs and not ignore.match_dir(rdir):
                     os.makedirs(dir_path + rdir, exist_ok=True)
@@ -145,11 +145,12 @@ class SweetPyboard(Pyboard):
                 if self.get_sha1(lfile_rel) == utils.get_file_sha1(lfiles_abs):
                     continue
             self.fs_verbose_put(lfiles_abs, lfile_rel, chunk_size=256, dry=dry)
-        for rfile, rsize in rfiles.items():
-            if ignore.match_file(rfile):
-                continue
-            if rfile not in lfiles:
-                self.fs_verbose_get(rfile, dir_path + rfile, chunk_size=256, dry=dry)
+        if not push:
+            for rfile, rsize in rfiles.items():
+                if ignore.match_file(rfile):
+                    continue
+                if rfile not in lfiles:
+                    self.fs_verbose_get(rfile, dir_path + rfile, chunk_size=256, dry=dry)
         print(Fore.LIGHTGREEN_EX, "✓ Files synced successfully")
 
     def delete_absent_items(self, dir_path, dry: bool = False):
