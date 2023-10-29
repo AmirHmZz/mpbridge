@@ -62,6 +62,7 @@ def port_abbreviation(port: str):
             port = "/dev/ttyUSB" + port[1:]
     return port
 
+
 def removeprefix(string, prefix):
     if not (isinstance(string, str) and isinstance(prefix, str)):
         raise TypeError('Param value type error')
@@ -69,12 +70,13 @@ def removeprefix(string, prefix):
         return string[len(prefix):]
     return string
 
+
 def recursive_list_dir(path: str) -> tuple[dict[str, str], dict[str, str]]:
     out_dirs = {}
     out_files = {}
     for abs_dir, dirs, files in os.walk(replace_backslashes(path)):
         abs_dir = replace_backslashes(abs_dir)
-        rel_dir = removeprefix(abs_dir,path)
+        rel_dir = removeprefix(abs_dir, path)
         for dir_name in dirs:
             out_dirs[f"{rel_dir}/{dir_name}"] = f"{abs_dir}/{dir_name}"
         for file_name in files:

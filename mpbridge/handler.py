@@ -11,13 +11,13 @@ from watchdog.events import (
     FileDeletedEvent,
     DirModifiedEvent)
 
-from .pyboard import SweetPyboard
+from .serial_transport import ExtendedSerialTransport
 from .utils import remove_prefix, replace_backslashes
 
 
 class EventHandler(FileSystemEventHandler):
-    def __init__(self, pyb: SweetPyboard, base_path: str) -> None:
-        self.pyb = pyb
+    def __init__(self, st: ExtendedSerialTransport, base_path: str) -> None:
+        self.st = st
         self.base_path = replace_backslashes(base_path)
 
     def dispatch(self, event):
@@ -30,9 +30,9 @@ class EventHandler(FileSystemEventHandler):
         dest_path = replace_backslashes(event.dest_path)
         rel_dest_path = remove_prefix(dest_path, self.base_path)
         if ".goutputstream-" in src_path:
-            self.pyb.fs_verbose_put(dest_path, rel_dest_path)
+            self.st.fs_verbose_put(dest_path, rel_dest_path)
         else:
-            self.pyb.fs_verbose_rename(src_path, rel_dest_path)
+            self.st.fs_verbose_rename(src_path, rel_dest_path)
         super().on_moved(event)
 
     def on_created(self, event: Union[DirCreatedEvent, FileCreatedEvent]):
@@ -41,18 +41,18 @@ class EventHandler(FileSystemEventHandler):
         if ".goutputstream-" in src_path:
             return
         if event.is_directory:
-            self.pyb.fs_verbose_mkdir(rel_src_path)
+            self.st.fs_verbose_mkdir(rel_src_path)
         else:
-            self.pyb.fs_verbose_put(src_path, rel_src_path)
+            self.st.fs_verbose_put(src_path, rel_src_path)
         super().on_created(event)
 
     def on_deleted(self, event: Union[DirDeletedEvent, FileDeletedEvent]):
         src_path = remove_prefix(
             replace_backslashes(event.src_path), self.base_path)
         try:
-            self.pyb.fs_verbose_rm(src_path)
+            self.st.fs_verbose_rm(src_path)
         except:
-            self.pyb.fs_verbose_rmdir(src_path)
+            self.st.fs_verbose_rmdir(src_path)
         super().on_deleted(event)
 
     def on_modified(self, event: Union[FileModifiedEvent, DirModifiedEvent]):
@@ -61,4 +61,4 @@ class EventHandler(FileSystemEventHandler):
         if ".goutputstream-" in src_path:
             return
         if not event.is_directory:
-            self.pyb.fs_verbose_put(src_path, rel_src_path)
+            self.st.fs_verbose_put(src_path, rel_src_path)

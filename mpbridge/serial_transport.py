@@ -2,7 +2,7 @@ import os
 from contextlib import suppress
 
 from colorama import Fore
-from mpremote.pyboard import Pyboard, PyboardError
+from mpremote.transport_serial import SerialTransport, TransportError
 
 from . import utils
 from .ignore import IgnoreStorage
@@ -48,10 +48,10 @@ def generate_buffer():
     return buf, repr_consumer
 
 
-class SweetPyboard(Pyboard):
+class ExtendedSerialTransport(SerialTransport):
     def fs_recursive_listdir(self):
         buf, consumer = generate_buffer()
-        self.exec_(RECURSIVE_LS, data_consumer=consumer)
+        self.exec(RECURSIVE_LS, data_consumer=consumer)
         dirs = {}
         files = {}
         for item in eval(f'[{buf.decode("utf-8")}]'):
@@ -88,8 +88,8 @@ class SweetPyboard(Pyboard):
     def fs_verbose_rename(self, src, dest, dry: bool = False):
         if not dry:
             buf, consumer = generate_buffer()
-            self.exec_(f'from os import rename; rename("{src}", "{dest}")',
-                       data_consumer=consumer)
+            self.exec(f'from os import rename; rename("{src}", "{dest}")',
+                      data_consumer=consumer)
         print(Fore.LIGHTBLUE_EX, "O Rename", src, "→", dest)
         utils.reset_term_color()
 
@@ -109,7 +109,7 @@ class SweetPyboard(Pyboard):
         try:
             if not dry:
                 self.fs_rmdir(dir_path)
-        except PyboardError:
+        except TransportError:
             print(Fore.RED, "E Cannot remove directory", dir_path, "as it might be mounted")
         else:
             print(Fore.LIGHTRED_EX, "✕ Removed", dir_path)
