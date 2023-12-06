@@ -74,7 +74,7 @@ def removeprefix(string, prefix):
 def recursive_list_dir(path: str) -> tuple[dict[str, str], dict[str, str]]:
     out_dirs = {}
     out_files = {}
-    for abs_dir, dirs, files in os.walk(replace_backslashes(path)):
+    for abs_dir, dirs, files in os.walk(replace_backslashes(path), followlinks=True):
         abs_dir = replace_backslashes(abs_dir)
         rel_dir = removeprefix(abs_dir, path)
         for dir_name in dirs:
