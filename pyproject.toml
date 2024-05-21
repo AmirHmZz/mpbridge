@@ -18,7 +18,7 @@ keywords = [
     "sync",
     "synchronize",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 dependencies = [
     "watchdog>=2.2.0",
     "colorama>=0.4.0",
