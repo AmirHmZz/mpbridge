@@ -7,7 +7,7 @@ from mpremote.transport_serial import SerialTransport, TransportError
 from . import utils
 from .ignore import IgnoreStorage
 
-RECURSIVE_LS = """
+RECURSIVE_LS = r"""
 from os import ilistdir
 from gc import collect
 def iter_dir(dir_path):
@@ -25,16 +25,58 @@ for item in iter_dir("/"):
     print(item, end=",")
 """
 
-SHA1_FUNC = """
-from hashlib import sha1
-b = bytearray(1024)
-mv = memoryview(b)
-def get_sha1(path):
-    h = sha1()
-    with open(path,"rb") as f:
-        while s := f.readinto(b):
-            h.update(mv[:s])
-    return h.digest()
+SHA1_FUNC = r"""
+import struct
+def _left_rotate(n, b):
+    return ((n << b) | (n >> (32 - b))) & 0xffffffff
+def _process_chunk(chunk, h0, h1, h2, h3, h4):
+    assert len(chunk) == 64
+    w = [0] * 80
+    for i in range(16):
+        w[i] = struct.unpack(b'>I', chunk[i * 4:i * 4 + 4])[0]
+    for i in range(16, 80):
+        w[i] = _left_rotate(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1)
+    a = h0
+    b = h1
+    c = h2
+    d = h3
+    e = h4
+    for i in range(80):
+        if 0 <= i <= 19:
+            f = d ^ (b & (c ^ d))
+            k = 0x5A827999
+        elif 20 <= i <= 39:
+            f = b ^ c ^ d
+            k = 0x6ED9EBA1
+        elif 40 <= i <= 59:
+            f = (b & c) | (b & d) | (c & d)
+            k = 0x8F1BBCDC
+        elif 60 <= i <= 79:
+            f = b ^ c ^ d
+            k = 0xCA62C1D6
+        a, b, c, d, e = ((_left_rotate(a, 5) + f + e + k + w[i]) & 0xffffffff,
+                         a, _left_rotate(b, 30), c, d)
+    h0 = (h0 + a) & 0xffffffff
+    h1 = (h1 + b) & 0xffffffff
+    h2 = (h2 + c) & 0xffffffff
+    h3 = (h3 + d) & 0xffffffff
+    h4 = (h4 + e) & 0xffffffff
+    return h0, h1, h2, h3, h4
+def get_sha1(path: str):
+    h = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0)
+    l = 0
+    with open(path, "rb") as f:
+        while True:
+            chunk = f.read(64)
+            l += len(chunk)
+            if len(chunk) == 64:
+                h = _process_chunk(chunk, *h)
+            else:
+                chunk += b'\x80' + b'\x00' * ((56 - (l + 1) % 64) % 64) + struct.pack(b'>Q', l * 8)
+                h = _process_chunk(chunk[:64], *h)
+                if len(chunk) != 64:
+                    h = _process_chunk(chunk[64:], *h)
+                return struct.pack(b'>IIIII', *h)
 """
 
 
