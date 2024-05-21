@@ -93,7 +93,7 @@ tests/test_2.py
 
 ## 📦 Dependencies
 
-- Python 3.7 or above.
+- Python 3.8 or above.
 - [mpremote](https://pypi.org/project/mpremote/) >= 0.4.0
 - [watchdog](https://pypi.org/project/watchdog/) >= 2.2.0
 - [click](https://pypi.org/project/click/) >= 7.0
