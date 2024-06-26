@@ -1,4 +1,4 @@
-# 📂 MPBridge ![Python Version](https://img.shields.io/badge/Python-3.7%20or%20later-blue?style=flat-square) ![PyPI Version](https://img.shields.io/pypi/v/mpbridge?label=PyPI%20Version&style=flat-square) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/AmirHmZz/mpbridge/python-publish.yml?label=Builds&style=flat-square)
+# 📂 MPBridge ![Python Version](https://img.shields.io/badge/Python-3.8%20or%20later-blue?style=flat-square) ![PyPI Version](https://img.shields.io/pypi/v/mpbridge?label=PyPI%20Version&style=flat-square) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/AmirHmZz/mpbridge/python-publish.yml?label=Builds&style=flat-square)
 
 CLI tool to synchronise and manage files on a [MicroPython](https://github.com/micropython/micropython)
 running device.
