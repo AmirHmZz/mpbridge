@@ -1,3 +1,4 @@
+import itertools
 import os
 from contextlib import suppress
 
@@ -6,6 +7,7 @@ from mpremote.transport_serial import SerialTransport, TransportError
 
 from . import utils
 from .ignore import IgnoreStorage
+from .utils import unpack_length_prefixed
 
 RECURSIVE_LS = """
 from os import ilistdir
@@ -27,6 +29,7 @@ for item in iter_dir("/"):
 
 SHA1_FUNC = """
 from hashlib import sha1
+from gc import collect
 b = bytearray(1024)
 mv = memoryview(b)
 def get_sha1(path):
@@ -34,6 +37,7 @@ def get_sha1(path):
     with open(path,"rb") as f:
         while s := f.readinto(b):
             h.update(mv[:s])
+    collect()
     return h.digest()
 """
 
@@ -130,6 +134,7 @@ class ExtendedSerialTransport(SerialTransport):
         dir_path = utils.replace_backslashes(dir_path)
         rdirs, rfiles = self.fs_recursive_listdir()
         ldirs, lfiles = utils.recursive_list_dir(dir_path)
+        hashtable = self._get_hash_table()
         ignore = IgnoreStorage(dir_path=dir_path)
         if (not dry) and (not push):
             for rdir in rdirs.keys():
@@ -142,8 +147,14 @@ class ExtendedSerialTransport(SerialTransport):
             if ignore.match_file(lfile_rel):
                 continue
             if rfiles.get(lfile_rel, None) == os.path.getsize(lfiles_abs):
-                if self.get_sha1(lfile_rel) == utils.get_file_sha1(lfiles_abs):
+                if lfile_rel in hashtable:
+                    sha1 = hashtable[lfile_rel]
+                else:
+                    sha1 = self.get_sha1(lfile_rel)
+                    hashtable[lfile_rel] = sha1
+                if sha1 == utils.get_file_sha1(lfiles_abs):
                     continue
+            hashtable[lfile_rel] = utils.get_file_sha1(lfiles_abs)
             self.fs_verbose_put(lfiles_abs, lfile_rel, chunk_size=256, dry=dry)
         if not push:
             for rfile, rsize in rfiles.items():
@@ -151,6 +162,7 @@ class ExtendedSerialTransport(SerialTransport):
                     continue
                 if rfile not in lfiles:
                     self.fs_verbose_get(rfile, dir_path + rfile, chunk_size=256, dry=dry)
+        self._write_hash_table(hashtable)
         print(Fore.LIGHTGREEN_EX, "✓ Files synced successfully")
 
     def delete_absent_items(self, dir_path, dry: bool = False):
@@ -199,3 +211,21 @@ class ExtendedSerialTransport(SerialTransport):
     def verbose_soft_reset(self):
         self.serial.write(b"\x04")
         print(Fore.LIGHTGREEN_EX, "✓ Soft reset board successfully")
+
+    def _get_hash_table(self) -> dict:
+        with suppress(Exception):
+            return dict(map(
+                lambda t: (t[0].decode("utf-8"), t[1]),
+                itertools.batched(
+                    unpack_length_prefixed(
+                        "B", self.fs_readfile("mpbridge.hashtable")), 2)))
+        return {}
+
+    def _write_hash_table(self, hash_table: dict[str, bytes]):
+        # TODO Ignore update if not changed
+        self.fs_writefile(
+            "mpbridge.hashtable",
+            b"".join(map(
+                lambda i: len(i[0]).to_bytes() + i[0].encode("utf-8") + len(i[1]).to_bytes() + i[1],
+                hash_table.items())))
+        print(Fore.LIGHTGREEN_EX, "✓ Updated hashtable")

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import os
 import re
+import struct
 import subprocess
 import sys
 
@@ -94,3 +95,17 @@ def get_temp_dirname_prefix(full_port: str):
         full_port, "/dev/").replace(
         "tty", "").replace(
         "/", "-") + "-"
+
+
+def unpack_length_prefixed(
+        size_header_fmt: str,
+        data: bytes | bytearray | memoryview):
+    size_header_size = struct.calcsize(size_header_fmt)
+
+    i = 0
+    while i < len(data):
+        size = struct.unpack(size_header_fmt, data[i:i + size_header_size])[0]
+        i += size_header_size
+
+        yield data[i: i + size]
+        i += size

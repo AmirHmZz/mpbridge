@@ -42,6 +42,8 @@ class IgnoreStorage:
         return False
 
     def match_file(self, rel_path: str) -> bool:
+        if rel_path.endswith("mpbridge.hashtable"):
+            return True
         for ignored_dir in self._dirs:
             if rel_path.startswith(ignored_dir):
                 return True
