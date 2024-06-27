@@ -130,11 +130,11 @@ class ExtendedSerialTransport(SerialTransport):
 
     def sync_with_dir(self, dir_path, dry: bool = False, push: bool = False):
         print(Fore.YELLOW, "- Syncing")
+        hashtable = self._get_hash_table()
         self.exec_raw_no_follow(SHA1_FUNC)
         dir_path = utils.replace_backslashes(dir_path)
         rdirs, rfiles = self.fs_recursive_listdir()
         ldirs, lfiles = utils.recursive_list_dir(dir_path)
-        hashtable = self._get_hash_table()
         ignore = IgnoreStorage(dir_path=dir_path)
         if (not dry) and (not push):
             for rdir in rdirs.keys():
