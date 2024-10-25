@@ -11,7 +11,7 @@ class IgnoreStorage:
         self.load()
 
     def load(self):
-        for subdir, dirs, files in os.walk(self._root_dir):
+        for subdir, dirs, files in os.walk(self._root_dir, followlinks=True):
             subdir = utils.replace_backslashes(subdir)
             for file in files:
                 if file == "mpbridge.ignore":
