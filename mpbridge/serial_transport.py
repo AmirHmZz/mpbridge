@@ -68,9 +68,13 @@ class ExtendedSerialTransport(SerialTransport):
     def fs_verbose_get(self, src, dest, chunk_size=1024, dry: bool = False):
         def print_prog(written, total):
             utils.print_progress_bar(
-                iteration=written, total=total, decimals=0,
+                iteration=written,
+                total=total,
+                decimals=0,
                 prefix=f"{Fore.LIGHTCYAN_EX} ↓ Getting {src}".ljust(60),
-                suffix="Complete", length=15)
+                suffix="Complete",
+                length=15,
+            )
 
         if not dry:
             self.fs_get(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
@@ -80,9 +84,13 @@ class ExtendedSerialTransport(SerialTransport):
     def fs_verbose_put(self, src, dest, chunk_size=1024, dry: bool = False):
         def print_prog(written, total):
             utils.print_progress_bar(
-                iteration=written, total=total, decimals=0,
+                iteration=written,
+                total=total,
+                decimals=0,
                 prefix=f"{Fore.LIGHTYELLOW_EX} ↑ Putting {dest}".ljust(60),
-                suffix="Complete", length=15)
+                suffix="Complete",
+                length=15,
+            )
 
         if not dry:
             self.fs_put(src, dest, chunk_size=chunk_size, progress_callback=print_prog)
@@ -92,8 +100,10 @@ class ExtendedSerialTransport(SerialTransport):
     def fs_verbose_rename(self, src, dest, dry: bool = False):
         if not dry:
             buf, consumer = generate_buffer()
-            self.exec(f'from os import rename; rename("{src}", "{dest}")',
-                      data_consumer=consumer)
+            self.exec(
+                f'from os import rename; rename("{src}", "{dest}")',
+                data_consumer=consumer,
+            )
         print(Fore.LIGHTBLUE_EX, "O Rename", src, "→", dest)
         utils.reset_term_color()
 
@@ -114,7 +124,12 @@ class ExtendedSerialTransport(SerialTransport):
             if not dry:
                 self.fs_rmdir(dir_path)
         except TransportError:
-            print(Fore.RED, "E Cannot remove directory", dir_path, "as it might be mounted")
+            print(
+                Fore.RED,
+                "E Cannot remove directory",
+                dir_path,
+                "as it might be mounted",
+            )
         else:
             print(Fore.LIGHTRED_EX, "✕ Removed", dir_path)
         utils.reset_term_color()
@@ -128,9 +143,15 @@ class ExtendedSerialTransport(SerialTransport):
         print(Fore.LIGHTGREEN_EX, "✓ Copied all files successfully")
         utils.reset_term_color()
 
-    def sync_with_dir(self, dir_path, dry: bool = False, push: bool = False):
+    def sync_with_dir(
+        self,
+        dir_path,
+        dry: bool = False,
+        push: bool = False,
+        use_hashtable: bool = False,
+    ):
         print(Fore.YELLOW, "- Syncing")
-        hashtable = self._get_hash_table()
+        hashtable = self._get_hash_table() if use_hashtable else {}
         self.exec_raw_no_follow(SHA1_FUNC)
         dir_path = utils.replace_backslashes(dir_path)
         rdirs, rfiles = self.fs_recursive_listdir()
@@ -161,7 +182,9 @@ class ExtendedSerialTransport(SerialTransport):
                 if ignore.match_file(rfile):
                     continue
                 if rfile not in lfiles:
-                    self.fs_verbose_get(rfile, dir_path + rfile, chunk_size=256, dry=dry)
+                    self.fs_verbose_get(
+                        rfile, dir_path + rfile, chunk_size=256, dry=dry
+                    )
         self._write_hash_table(hashtable)
         print(Fore.LIGHTGREEN_EX, "✓ Files synced successfully")
 
@@ -199,8 +222,7 @@ class ExtendedSerialTransport(SerialTransport):
         self.exit_raw_repl()
 
     def get_sha1(self, file_path):
-        return eval(self.eval(
-            f'get_sha1("{file_path}")').decode("utf-8"))
+        return eval(self.eval(f'get_sha1("{file_path}")').decode("utf-8"))
 
     def verbose_hard_reset(self):
         self.exec_raw_no_follow("from machine import reset; reset()")
@@ -214,18 +236,31 @@ class ExtendedSerialTransport(SerialTransport):
 
     def _get_hash_table(self) -> dict:
         with suppress(Exception):
-            return dict(map(
-                lambda t: (t[0].decode("utf-8"), t[1]),
-                itertools.batched(
-                    unpack_length_prefixed(
-                        "B", self.fs_readfile("mpbridge.hashtable")), 2)))
+            return dict(
+                map(
+                    lambda t: (t[0].decode("utf-8"), t[1]),
+                    itertools.batched(
+                        unpack_length_prefixed(
+                            "B", self.fs_readfile("mpbridge.hashtable")
+                        ),
+                        2,
+                    ),
+                )
+            )
         return {}
 
     def _write_hash_table(self, hash_table: dict[str, bytes]):
         # TODO Ignore update if not changed
         self.fs_writefile(
             "mpbridge.hashtable",
-            b"".join(map(
-                lambda i: len(i[0]).to_bytes() + i[0].encode("utf-8") + len(i[1]).to_bytes() + i[1],
-                hash_table.items())))
+            b"".join(
+                map(
+                    lambda i: len(i[0]).to_bytes()
+                    + i[0].encode("utf-8")
+                    + len(i[1]).to_bytes()
+                    + i[1],
+                    hash_table.items(),
+                )
+            ),
+        )
         print(Fore.LIGHTGREEN_EX, "✓ Updated hashtable")

@@ -20,15 +20,16 @@ def start_bridge_mode(port: str):
     st.enter_raw_repl_verbose()
 
     with tempfile.TemporaryDirectory(
-            prefix=utils.get_temp_dirname_prefix(port)) as tmp_dir_path:
+        prefix=utils.get_temp_dirname_prefix(port)
+    ) as tmp_dir_path:
         st.copy_all(dest_dir_path=tmp_dir_path)
         print(Fore.YELLOW, "- Started bridge mode in", tmp_dir_path)
         print(Fore.YELLOW, "- Use Ctrl-C to terminate the bridge")
         utils.reset_term_color()
         observer = Observer()
         observer.schedule(
-            EventHandler(st=st, base_path=tmp_dir_path),
-            tmp_dir_path, recursive=True)
+            EventHandler(st=st, base_path=tmp_dir_path), tmp_dir_path, recursive=True
+        )
         observer.start()
         utils.open_dir(tmp_dir_path)
         try:
@@ -40,7 +41,14 @@ def start_bridge_mode(port: str):
         observer.join()
 
 
-def sync(port: str, path: str, clean: bool, dry_run: bool, push_only: bool):
+def sync(
+    port: str,
+    path: str,
+    clean: bool,
+    dry_run: bool,
+    push_only: bool,
+    use_hashtable: bool,
+):
     port = utils.port_abbreviation(port)
     print(Fore.YELLOW, f"- Syncing files on {port} with {path}")
     utils.reset_term_color()
@@ -49,11 +57,15 @@ def sync(port: str, path: str, clean: bool, dry_run: bool, push_only: bool):
     if clean:
         print(Fore.YELLOW, f"Removing absent files from {port}")
         st.delete_absent_items(dir_path=path, dry=dry_run)
-    st.sync_with_dir(dir_path=path, dry=dry_run, push=push_only)
+    st.sync_with_dir(
+        dir_path=path, dry=dry_run, push=push_only, use_hashtable=use_hashtable
+    )
     st.exit_raw_repl_verbose()
 
 
-def start_dev_mode(port: str, path: str, auto_reset: str, no_prompt: bool):
+def start_dev_mode(
+    port: str, path: str, auto_reset: str, no_prompt: bool, use_hashtable: bool
+):
     path = utils.replace_backslashes(path)
     port = utils.port_abbreviation(port)
     print(Fore.YELLOW, f"- Syncing files on {port} with {path}")
@@ -64,15 +76,18 @@ def start_dev_mode(port: str, path: str, auto_reset: str, no_prompt: bool):
         st.enter_raw_repl_verbose()
         if not no_prompt:
             print(Fore.YELLOW, "- Sync files")
-            st.sync_with_dir(dir_path=path)
-            print(Fore.LIGHTWHITE_EX +
-                  " ? Press [Enter] to Clean Sync & Enter REPL\n" +
-                  "   Press [Ctrl + C] to exit ", end="")
+            st.sync_with_dir(dir_path=path, use_hashtable=use_hashtable)
+            print(
+                Fore.LIGHTWHITE_EX
+                + " ? Press [Enter] to Clean Sync & Enter REPL\n"
+                + "   Press [Ctrl + C] to exit ",
+                end="",
+            )
             utils.reset_term_color()
             input()
         print(Fore.YELLOW, "- Clean Sync files")
         st.delete_absent_items(dir_path=path)
-        st.sync_with_dir(dir_path=path)
+        st.sync_with_dir(dir_path=path, use_hashtable=use_hashtable)
         if auto_reset is None:
             st.exit_raw_repl()
             st.close()
@@ -98,6 +113,7 @@ def clear(port: str):
 def start_repl(port: str):
     from mpremote.commands import do_connect, do_disconnect
     from mpremote.repl import do_repl
+
     print(Fore.LIGHTMAGENTA_EX, "R Entering REPL using mpremote")
     utils.reset_term_color()
     port = utils.port_abbreviation(port)
@@ -113,15 +129,18 @@ def list_devices():
     ports = sorted(serial.tools.list_ports.comports())
     if ports:
         for i, port in enumerate(ports):
-            print(Fore.LIGHTYELLOW_EX,
-                  "{}. {} {} {:04x}:{:04x} {} {}".format(
-                      i + 1,
-                      port.device,
-                      port.serial_number or "null",
-                      port.vid if isinstance(port.vid, int) else 0,
-                      port.pid if isinstance(port.pid, int) else 0,
-                      port.manufacturer or "null",
-                      port.product or "null"))
+            print(
+                Fore.LIGHTYELLOW_EX,
+                "{}. {} {} {:04x}:{:04x} {} {}".format(
+                    i + 1,
+                    port.device,
+                    port.serial_number or "null",
+                    port.vid if isinstance(port.vid, int) else 0,
+                    port.pid if isinstance(port.pid, int) else 0,
+                    port.manufacturer or "null",
+                    port.product or "null",
+                ),
+            )
     else:
         print(Fore.LIGHTYELLOW_EX, "Couldn't find any connected devices")
     utils.reset_term_color()

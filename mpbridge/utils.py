@@ -12,13 +12,13 @@ from colorama import Style
 
 def remove_prefix(string: str, prefix: str) -> str:
     if string.startswith(prefix):
-        return string[len(prefix):]
+        return string[len(prefix) :]
     return string
 
 
 def remove_suffix(string: str, suffix: str) -> str:
     if string.endswith(suffix):
-        return string[:-len(suffix)]
+        return string[: -len(suffix)]
     return string
 
 
@@ -35,18 +35,19 @@ def open_dir(filename):
 
 
 def print_progress_bar(
-        iteration,
-        total,
-        prefix='',
-        suffix='',
-        decimals=1,
-        length=100,
-        fill='█',
-        print_end="\r"):
+    iteration,
+    total,
+    prefix="",
+    suffix="",
+    decimals=1,
+    length=100,
+    fill="█",
+    print_end="\r",
+):
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filled_length = int(length * iteration // total)
-    bar = fill * filled_length + '-' * (length - filled_length)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=print_end)
+    bar = fill * filled_length + "-" * (length - filled_length)
+    print(f"\r{prefix} |{bar}| {percent}% {suffix}", end=print_end)
 
 
 def reset_term_color(new_line: bool = False):
@@ -66,9 +67,9 @@ def port_abbreviation(port: str):
 
 def removeprefix(string, prefix):
     if not (isinstance(string, str) and isinstance(prefix, str)):
-        raise TypeError('Param value type error')
+        raise TypeError("Param value type error")
     if string.startswith(prefix):
-        return string[len(prefix):]
+        return string[len(prefix) :]
     return string
 
 
@@ -91,21 +92,20 @@ def get_file_sha1(path: str) -> bytes:
 
 
 def get_temp_dirname_prefix(full_port: str):
-    return "mpbridge-" + remove_prefix(
-        full_port, "/dev/").replace(
-        "tty", "").replace(
-        "/", "-") + "-"
+    return (
+        "mpbridge-"
+        + remove_prefix(full_port, "/dev/").replace("tty", "").replace("/", "-")
+        + "-"
+    )
 
 
-def unpack_length_prefixed(
-        size_header_fmt: str,
-        data: bytes | bytearray | memoryview):
+def unpack_length_prefixed(size_header_fmt: str, data: bytes | bytearray | memoryview):
     size_header_size = struct.calcsize(size_header_fmt)
 
     i = 0
     while i < len(data):
-        size = struct.unpack(size_header_fmt, data[i:i + size_header_size])[0]
+        size = struct.unpack(size_header_fmt, data[i : i + size_header_size])[0]
         i += size_header_size
 
-        yield data[i: i + size]
+        yield data[i : i + size]
         i += size

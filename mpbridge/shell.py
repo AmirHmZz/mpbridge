@@ -1,3 +1,5 @@
+from typing import Literal
+
 import click
 import colorama
 
@@ -11,9 +13,9 @@ def main():
     pass
 
 
-@main.command("bridge", short_help='Start bridge mode')
-@click.argument('port')
-def bridge_mode(port):
+@main.command("bridge", short_help="Start bridge mode")
+@click.argument("port")
+def bridge_mode(port: str):
     """Starts bridge mode on [PORT]
 
     [PORT] can be full path or :
@@ -25,20 +27,48 @@ def bridge_mode(port):
             c[n]  connect to serial port "COM[n]"
     """
 
-    bridge.start_bridge_mode(port)
+    bridge.start_bridge_mode(port=port)
 
 
-@main.command("sync", short_help='Sync files with a directory')
-@click.argument('port')
-@click.argument('dir_path', type=click.Path(
-    exists=True, file_okay=False, dir_okay=True, resolve_path=True), default="")
-@click.option('--clean', "-c", is_flag=True,
-              help="Execute Clean Sync")
-@click.option('--push-only', "-p", is_flag=True,
-              help="Only push changes without pulling anything from remote device")
-@click.option('--dry-run', "-d", is_flag=True,
-              help="Test Sync command without performing any actions")
-def sync(port, dir_path, clean, dry_run, push_only):
+@main.command("sync", short_help="Sync files with a directory")
+@click.argument("port")
+@click.argument(
+    "dir_path",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, resolve_path=True),
+    default="",
+)
+@click.option(
+    "--clean",
+    "-c",
+    is_flag=True,
+    help="Execute Clean Sync",
+)
+@click.option(
+    "--push-only",
+    "-p",
+    is_flag=True,
+    help="Only push changes without pulling anything from remote device",
+)
+@click.option(
+    "--dry-run",
+    "-d",
+    is_flag=True,
+    help="Test Sync command without performing any actions",
+)
+@click.option(
+    "--use-hashtable",
+    is_flag=True,
+    default=False,
+    help="Use hashtable to speedup syncing process",
+)
+def sync(
+    port: str,
+    dir_path: str,
+    clean: bool,
+    dry_run: bool,
+    push_only: bool,
+    use_hashtable: bool,
+):
     """Sync files of on [PORT] in specified directory [DIR_PATH]
 
     If [DIR_PATH] is not set, it defaults to the current path
@@ -71,17 +101,46 @@ def sync(port, dir_path, clean, dry_run, push_only):
 
             and then push the different files from the local to the device.
     """
-    bridge.sync(port, dir_path, clean, dry_run, push_only)
+    bridge.sync(
+        port=port,
+        path=dir_path,
+        clean=clean,
+        dry_run=dry_run,
+        push_only=push_only,
+        use_hashtable=use_hashtable,
+    )
 
 
-@main.command("dev", short_help='Start development mode')
-@click.argument('port')
-@click.argument('dir_path', type=click.Path(
-    exists=True, file_okay=False, dir_okay=True, resolve_path=True), default="")
-@click.option('--auto-reset', help="Enables auto reset before entering REPL",
-              type=click.Choice(['soft', 'hard'], case_sensitive=False))
-@click.option('--no-prompt', is_flag=True, help="Disables prompt, auto Clean Sync & enter REPL")
-def dev(port, dir_path, auto_reset, no_prompt: bool):
+@main.command("dev", short_help="Start development mode")
+@click.argument("port")
+@click.argument(
+    "dir_path",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, resolve_path=True),
+    default="",
+)
+@click.option(
+    "--auto-reset",
+    help="Enables auto reset before entering REPL",
+    type=click.Choice(["soft", "hard"], case_sensitive=False),
+)
+@click.option(
+    "--no-prompt",
+    is_flag=True,
+    help="Disables prompt, auto Clean Sync & enter REPL",
+)
+@click.option(
+    "--use-hashtable",
+    is_flag=True,
+    default=False,
+    help="Use hashtable to speedup syncing process",
+)
+def dev(
+    port: str,
+    dir_path: str,
+    auto_reset: Literal["soft", "hard"],
+    no_prompt: bool,
+    use_hashtable: bool,
+):
     """Start development mode on [PORT] in specified directory [DIR_PATH]
 
     If [DIR_PATH] is not set, it defaults to the current path
@@ -122,12 +181,18 @@ def dev(port, dir_path, auto_reset, no_prompt: bool):
 
             and then push the different files from the local to the device.
     """
-    bridge.start_dev_mode(port, dir_path, auto_reset=auto_reset, no_prompt=no_prompt)
+    bridge.start_dev_mode(
+        port=port,
+        path=dir_path,
+        auto_reset=auto_reset,
+        no_prompt=no_prompt,
+        use_hashtable=use_hashtable,
+    )
 
 
-@main.command("clear", short_help='Delete all files from MicroPython device')
-@click.argument('port')
-def clear(port):
+@main.command("clear", short_help="Delete all files from MicroPython device")
+@click.argument("port")
+def clear(port: str):
     """Delete all files from MicroPython device connected to [PORT]
 
     [PORT] can be full path or :
@@ -141,10 +206,10 @@ def clear(port):
     bridge.clear(port=port)
 
 
-@main.command("list", short_help='List available devices')
+@main.command("list", short_help="List available devices")
 def list_devices():
     """List available devices
 
     [device] [serial_number] [vid]:[pid] [manufacturer] [product]
-        """
+    """
     bridge.list_devices()

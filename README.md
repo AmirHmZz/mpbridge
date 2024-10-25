@@ -32,6 +32,9 @@ You can use `mpbridge` in several ways based on your needs:
   all modified files and folders into board and also pull changes from board and exits.
 * If a conflict occurs, `mpbridge` will choose the **local version** of file automatically and
   overwrites it on connected board.
+* You can speed up syncing with `--use-hashtable` which allows mpbridge to cache calculated hashes
+  on remote device. By using hashtable you won't be able to track files which are modified by remote
+  device because hash is calculated at uploading stage.
 
 #### ⚜️ Development Mode
 
@@ -49,6 +52,8 @@ You can use `mpbridge` in several ways based on your needs:
 * Default to current path of terminal if not set the `DIR_PATH`.
 * Automatic reset before entering MicroPython REPL can be enabled with `--auto-reset` option which can be set to
   `soft` (soft reset) or `hard` (hard reset).
+* You can also boost sync speed with `--use-hashtable` But you won't be able to track files which are modified 
+  by remote device itself. Use this option if only host is modifying files.
 
 #### ⚜️ Delete all files
 

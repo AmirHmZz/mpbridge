@@ -9,7 +9,8 @@ from watchdog.events import (
     FileMovedEvent,
     DirDeletedEvent,
     FileDeletedEvent,
-    DirModifiedEvent)
+    DirModifiedEvent,
+)
 
 from .serial_transport import ExtendedSerialTransport
 from .utils import remove_prefix, replace_backslashes
@@ -25,8 +26,7 @@ class EventHandler(FileSystemEventHandler):
             super().dispatch(event)
 
     def on_moved(self, event: Union[DirMovedEvent, FileMovedEvent]):
-        src_path = remove_prefix(
-            replace_backslashes(event.src_path), self.base_path)
+        src_path = remove_prefix(replace_backslashes(event.src_path), self.base_path)
         dest_path = replace_backslashes(event.dest_path)
         rel_dest_path = remove_prefix(dest_path, self.base_path)
         if ".goutputstream-" in src_path:
@@ -47,8 +47,7 @@ class EventHandler(FileSystemEventHandler):
         super().on_created(event)
 
     def on_deleted(self, event: Union[DirDeletedEvent, FileDeletedEvent]):
-        src_path = remove_prefix(
-            replace_backslashes(event.src_path), self.base_path)
+        src_path = remove_prefix(replace_backslashes(event.src_path), self.base_path)
         try:
             self.st.fs_verbose_rm(src_path)
         except:
