@@ -54,6 +54,9 @@ You can use `mpbridge` in several ways based on your needs:
   `soft` (soft reset) or `hard` (hard reset).
 * You can also boost sync speed with `--use-hashtable` But you won't be able to track files which are modified 
   by remote device itself. Use this option if only host is modifying files.
+* In order to compile source files before uploading to remote device, you should set `mpy-cross` executable path using 
+`--mpy-cross-path` flag. Visit [Micropython](https://github.com/micropython/micropython/tree/master/mpy-cross) 
+repository to build `mpy-cross` compiler for your platform.
 
 #### ⚜️ Delete all files
 

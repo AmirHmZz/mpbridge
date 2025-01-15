@@ -1,6 +1,11 @@
+import os
+import pathlib
+import shutil
+import subprocess
 import tempfile
 import time
 from argparse import Namespace
+from typing import Optional
 
 import serial.tools.list_ports
 from colorama import Fore
@@ -9,6 +14,7 @@ from watchdog.observers import Observer
 
 from . import utils
 from .handler import EventHandler
+from .ignore import IgnoreStorage
 from .serial_transport import ExtendedSerialTransport
 
 
@@ -64,7 +70,12 @@ def sync(
 
 
 def start_dev_mode(
-    port: str, path: str, auto_reset: str, no_prompt: bool, use_hashtable: bool
+    port: str,
+    path: str,
+    auto_reset: str,
+    no_prompt: bool,
+    use_hashtable: bool,
+    mpy_cross_path: Optional[str],
 ):
     path = utils.replace_backslashes(path)
     port = utils.port_abbreviation(port)
@@ -72,34 +83,82 @@ def start_dev_mode(
     utils.reset_term_color()
 
     while True:
-        st = ExtendedSerialTransport(device=port)
-        st.enter_raw_repl_verbose()
-        if not no_prompt:
-            print(Fore.YELLOW, "- Sync files")
-            st.sync_with_dir(dir_path=path, use_hashtable=use_hashtable)
-            print(
-                Fore.LIGHTWHITE_EX
-                + " ? Press [Enter] to Clean Sync & Enter REPL\n"
-                + "   Press [Ctrl + C] to exit ",
-                end="",
+        if mpy_cross_path is None:
+            _dev_mode_iter(
+                port=port,
+                path=path,
+                auto_reset=auto_reset,
+                no_prompt=no_prompt,
+                use_hashtable=use_hashtable,
             )
-            utils.reset_term_color()
-            input()
-        print(Fore.YELLOW, "- Clean Sync files")
-        st.delete_absent_items(dir_path=path)
+
+        else:
+            with tempfile.TemporaryDirectory(
+                prefix=utils.get_temp_dirname_prefix(port)
+            ) as tmp_dir_path:
+                ignore = IgnoreStorage(dir_path=path)
+                ldirs, lfiles = utils.recursive_list_dir(path)
+
+                for ldir in ldirs.keys():
+                    os.mkdir(tmp_dir_path + ldir)
+                for lfile_rel, lfile_abs in lfiles.items():
+                    if not ignore.match_file(lfile_rel):
+                        if lfile_rel != "/main.py" and lfile_rel.endswith(".py"):
+                            subprocess.run(
+                                [
+                                    mpy_cross_path,
+                                    "-o",
+                                    tmp_dir_path + lfile_rel[:-3] + ".mpy",
+                                    lfile_abs,
+                                ],
+                                capture_output=False,
+                            )
+                        else:
+                            shutil.copyfile(src=lfile_abs, dst=tmp_dir_path + lfile_rel)
+                _dev_mode_iter(
+                    port=port,
+                    path=tmp_dir_path,
+                    auto_reset=auto_reset,
+                    no_prompt=no_prompt,
+                    use_hashtable=use_hashtable,
+                )
+
+
+def _dev_mode_iter(
+    port: str,
+    path: str,
+    auto_reset: str,
+    no_prompt: bool,
+    use_hashtable: bool,
+):
+    st = ExtendedSerialTransport(device=port)
+    st.enter_raw_repl_verbose()
+    if not no_prompt:
+        print(Fore.YELLOW, "- Sync files")
         st.sync_with_dir(dir_path=path, use_hashtable=use_hashtable)
-        if auto_reset is None:
-            st.exit_raw_repl()
-            st.close()
-        elif auto_reset == "hard":
-            st.verbose_hard_reset()
-            st.close()
-            time.sleep(1)
-        elif auto_reset == "soft":
-            st.exit_raw_repl()
-            st.verbose_soft_reset()
-            st.close()
-        start_repl(port)
+        print(
+            Fore.LIGHTWHITE_EX
+            + " ? Press [Enter] to Clean Sync & Enter REPL\n"
+            + "   Press [Ctrl + C] to exit ",
+            end="",
+        )
+        utils.reset_term_color()
+        input()
+    print(Fore.YELLOW, "- Clean Sync files")
+    st.delete_absent_items(dir_path=path)
+    st.sync_with_dir(dir_path=path, use_hashtable=use_hashtable)
+    if auto_reset is None:
+        st.exit_raw_repl()
+        st.close()
+    elif auto_reset == "hard":
+        st.verbose_hard_reset()
+        st.close()
+        time.sleep(1)
+    elif auto_reset == "soft":
+        st.exit_raw_repl()
+        st.verbose_soft_reset()
+        st.close()
+    start_repl(port)
 
 
 def clear(port: str):

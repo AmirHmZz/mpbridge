@@ -1,4 +1,5 @@
-from typing import Literal
+from email.policy import default
+from typing import Literal, Optional
 
 import click
 import colorama
@@ -134,12 +135,19 @@ def sync(
     default=False,
     help="Use hashtable to speedup syncing process",
 )
+@click.option(
+    "--mpy-cross-path",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True),
+    default=None,
+    help="Path to mpy-cross executable in order to compile source files",
+)
 def dev(
     port: str,
     dir_path: str,
     auto_reset: Literal["soft", "hard"],
     no_prompt: bool,
     use_hashtable: bool,
+    mpy_cross_path: Optional[str],
 ):
     """Start development mode on [PORT] in specified directory [DIR_PATH]
 
@@ -187,6 +195,7 @@ def dev(
         auto_reset=auto_reset,
         no_prompt=no_prompt,
         use_hashtable=use_hashtable,
+        mpy_cross_path=mpy_cross_path,
     )
 
 
