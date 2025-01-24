@@ -255,9 +255,9 @@ class ExtendedSerialTransport(SerialTransport):
             "mpbridge.hashtable",
             b"".join(
                 map(
-                    lambda i: len(i[0]).to_bytes()
+                    lambda i: len(i[0]).to_bytes(length=1, byteorder="big")
                     + i[0].encode("utf-8")
-                    + len(i[1]).to_bytes()
+                    + len(i[1]).to_bytes(length=1, byteorder="big")
                     + i[1],
                     hash_table.items(),
                 )
